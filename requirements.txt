@@ -1,0 +1,9 @@
+numpy
+torch
+transformers
+tokenizers
+datasets
+sentencepiece
+sacrebleu
+dotenv
+huggingface_hub
