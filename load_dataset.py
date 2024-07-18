@@ -45,7 +45,49 @@ def load_flores200_few_shot(split, source_lang, target_lang, prefix, num_samples
         return data 
 
     except Exception as e:
-        raise DataLoadingError(f"There is somethin wrong in loading flores-200 for few-shot: {e}")
+        raise DataLoadingError(f"There is something wrong in loading flores-200 for few-shot: {e}")
+
+def load_flores200_few_shot_in_context(split, source_lang, target_lang, prefix, num_example, num_inference):
+
+    try:
+        # load the source lang & target lang
+        flores200_src = load_dataset('facebook/flores', source_lang)[split]
+        flores200_trg = load_dataset('facebook/flores', target_lang)[split]
+
+        # sample the idx for the sentence we want to translate
+        total_num_sample = len(flores200_src)
+        translate_idx = np.random.randint(low=0, high=total_num_sample, size=num_inference)
+
+        # to get the idx of the dataset excluding those we took it for translation
+        idx = np.arange(0, total_num_sample)
+        example_idx = np.setdiff1d(idx, translate_idx)
+
+        # constructing the dictionary for few-shot learning
+        data = {
+            'id': [],
+            source_lang: [],
+            target_lang: [],
+        }
+
+        for i in translate_idx:
+            chosen_examples = np.random.choice(example_idx, size=num_example, replace=False)
+            temp = ''
+            temp2 = []
+            for j in chosen_examples:
+                temp += (prefix + flores200_src['sentence'][j] + '\n')
+                temp += (flores200_trg['sentence'][j] + '\n')
+                temp2.append(j)
+            temp += (prefix+ flores200_src['sentence'][i])
+            temp2.append(i)
+            
+            data['id'].append(temp2)
+            data[source_lang].append(temp)
+            data[target_lang].append(flores200_trg['sentence'][i])
+        
+        return data
+
+    except Exception as e:
+        raise DataLoadingError(f"There is something wrong in loading flores-200 for few-shot in context: {e}")
 
 def tokenize_data(data, source_lang, target_language, tokenizer, truncation, MAX_LEN):
 
