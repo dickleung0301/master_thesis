@@ -71,14 +71,13 @@ def load_flores200_few_shot_in_context(split, source_lang, target_lang, prefix_L
 
         for i in translate_idx:
             chosen_examples = np.random.choice(example_idx, size=num_example, replace=False)
-            temp = "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\nYou are a helpful AI assistant for translations<|eot_id|>"
+            temp = "<|begin_of_text|>\n<|start_header_id|>system<|end_header_id|>\nYou are a helpful AI assistant for translations\n<|eot_id|>\n<|start_header_id|>user<|end_header_id|>\n"
             temp2 = []
             for j in chosen_examples:
-                temp += '<|start_header_id|>user<|end_header_id|>\n' + prefix_L1 + flores200_src['sentence'][j] + ' = '
-                temp += prefix_L2 + '\n' + '<|eot_id|>' + '<|start_header_id|>assistant<|end_header_id|>\n' + flores200_trg['sentence'][j] + '\n' + '<|eot_id|>'
+                temp += prefix_L1 + flores200_src['sentence'][j] + ' = ' + prefix_L2 + flores200_trg['sentence'][j] + '\n'
                 temp2.append(j)
-            temp += '<|start_header_id|>user<|end_header_id|>\n' + prefix_L1 + flores200_src['sentence'][i] + ' = ' + prefix_L2 + '\n' +' <|eot_id|>'
-            temp += '\n' + '<|start_header_id|>user<|end_header_id|>'
+            temp += prefix_L1 + flores200_src['sentence'][i] + ' = ' + prefix_L2 + '\n' +' <|eot_id|>'
+            temp += '\n' + '<|start_header_id|>assistant<|end_header_id|>'
             temp2.append(i)
             
             data['id'].append(temp2)
