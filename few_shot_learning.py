@@ -5,21 +5,23 @@ import torch
 from tqdm import tqdm
 from torch.optim import AdamW
 from sacrebleu.metrics import BLEU
+import json
 
-# dictionary for the language to prefix
-prefix = {
-    'eng_Latn': 'English: ',
-    'deu_Latn': 'German: ',
-    'fra_Latn': 'French: ',
-    'nld_Latn': 'Dutch: '
-}
+# load the config file
+with open('config.json', 'r') as f:
+    config = json.load(f)
+
+# load the prefix and model dictionary
+prefix = config['prefix']
+model = config['model']
 
 # state the parameters
 source_lang = 'eng_Latn'
-target_lang = 'deu_Latn'
+target_lang = 'nld_Latn'
 prefix_L1 = prefix[source_lang]
 prefix_L2 = prefix[target_lang]
-model_name = 't5-small'
+model_choice = '1'
+model_name = model[model_choice]
 MAX_LEN = 128
 MAX_LEN_OUTPUT = 200
 count = 0
@@ -35,7 +37,7 @@ model, tokenizer = model_factory(model_name)
 # set up the BLEU object for evaluation
 bleu = BLEU()
 
-if model_name == 'meta-llama/Llama-2-7b-chat-hf':
+if model_name == 'meta-llama/Llama-2-7b-chat-hf' or model_name == 'meta-llama/Meta-Llama-3.1-8B-Instruct' or model_name == "meta-llama/Meta-Llama-3.1-8B":
     tokenizer.pad_token = tokenizer.eos_token
 
 # get samples from dev set for few-shot learning

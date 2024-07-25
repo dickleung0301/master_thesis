@@ -4,21 +4,23 @@ from exception import *
 import torch
 from tqdm import tqdm
 from sacrebleu.metrics import BLEU
+import json
 
-# dictionary for the language to prefix
-prefix = {
-    'eng_Latn': 'English: ',
-    'deu_Latn': 'German: ',
-    'fra_Latn': 'French: ',
-    'nld_Latn': 'Dutch: '
-}
+# load the config file
+with open('config.json', 'r') as f:
+    config = json.load(f)
+
+# load the prefix and model dictionary
+prefix = config['prefix']
+model = config['model']
 
 # state the parameters
 source_lang = 'eng_Latn'
 target_lang = 'deu_Latn'
-prefix_L1 = 'English: '
-prefix_L2 = 'German: '
-model_name = 't5-small'
+prefix_L1 = prefix[source_lang]
+prefix_L2 = prefix[target_lang]
+model_choice = '1'
+model_name = model[model_choice]
 MAX_LEN = 1024
 MAX_LEN_OUTPUT = 128
 num_example = 3
@@ -27,7 +29,7 @@ num_inference = 5
 # get the pretrained model & tokenizer
 model, tokenizer = model_factory(model_name)
 
-if model_name == 'meta-llama/Llama-2-7b-chat-hf':
+if model_name == 'meta-llama/Llama-2-7b-chat-hf' or model_name == 'meta-llama/Meta-Llama-3.1-8B-Instruct' or model_name == "meta-llama/Meta-Llama-3.1-8B":
     tokenizer.pad_token = tokenizer.eos_token
 
 # set up the BLEU object for evaluation

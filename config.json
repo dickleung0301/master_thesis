@@ -1,0 +1,17 @@
+{
+    "prefix": {
+        "eng_Latn": "English: ",
+        "deu_Latn": "German: ",
+        "fra_Latn": "French: ",
+        "nld_Latn": "Dutch: "
+    },
+
+    "model": {
+        "1": "t5-small",
+        "2": "t5-base",
+        "3": "t5-large",
+        "4": "meta-llama/Llama-2-7b-chat-hf",
+        "5": "meta-llama/Meta-Llama-3.1-8B",
+        "6": "meta-llama/Meta-Llama-3.1-8B-Instruct"
+    }
+}
