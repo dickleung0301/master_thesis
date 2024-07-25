@@ -4,13 +4,13 @@ from torch.utils.data import DataLoader, TensorDataset
 from exception import *
 
 # load the source & target language
-def load_flores200(split, source_lang, target_lang, prefix):
+def load_flores200(split, source_lang, target_lang, prefix_L1, prefix_L2):
 
     try:
         flores200_src = load_dataset('facebook/flores', source_lang)[split]
         data = {}
         data['id'] = flores200_src['id']
-        data[source_lang] = [prefix + x for x in flores200_src['sentence']]
+        data[source_lang] = [prefix_L1 + x + ' = ' + prefix_L2 for x in flores200_src['sentence']]
         data[target_lang] = load_dataset('facebook/flores', target_lang)[split]['sentence']
 
         return data
@@ -19,7 +19,7 @@ def load_flores200(split, source_lang, target_lang, prefix):
         raise DataLoadingError(f"There is something wrong in loading flores-200: {e}")
 
 # load the source & target language for few-shot learning
-def load_flores200_few_shot(split, source_lang, target_lang, prefix, num_samples):
+def load_flores200_few_shot(split, source_lang, target_lang, prefix_L1, prefix_L2, num_samples):
 
     try:
         # load the source lang & target lang
@@ -39,7 +39,7 @@ def load_flores200_few_shot(split, source_lang, target_lang, prefix, num_samples
 
         for idx in example_idx:
             data['id'].append(flores200_src['id'][idx])
-            data[source_lang].append(prefix + flores200_src['sentence'][idx])
+            data[source_lang].append(prefix_L1 + flores200_src['sentence'][idx] + ' = ' + prefix_L2)
             data[target_lang].append(flores200_trg['sentence'][idx])
 
         return data 
@@ -47,7 +47,7 @@ def load_flores200_few_shot(split, source_lang, target_lang, prefix, num_samples
     except Exception as e:
         raise DataLoadingError(f"There is something wrong in loading flores-200 for few-shot: {e}")
 
-def load_flores200_few_shot_in_context(split, source_lang, target_lang, prefix, num_example, num_inference):
+def load_flores200_few_shot_in_context(split, source_lang, target_lang, prefix_L1, prefix_L2, num_example, num_inference):
 
     try:
         # load the source lang & target lang
@@ -74,10 +74,9 @@ def load_flores200_few_shot_in_context(split, source_lang, target_lang, prefix, 
             temp = ''
             temp2 = []
             for j in chosen_examples:
-                temp += (prefix + flores200_src['sentence'][j] + '\n')
-                temp += (flores200_trg['sentence'][j] + '\n')
+                temp += (prefix_L1 + flores200_src['sentence'][j] + ' = ') + (prefix_L2 + flores200_trg['sentence'][j] + '\n')
                 temp2.append(j)
-            temp += (prefix+ flores200_src['sentence'][i])
+            temp += (prefix_L1 + flores200_src['sentence'][i] + ' = ' + prefix_L2)
             temp2.append(i)
             
             data['id'].append(temp2)

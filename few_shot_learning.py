@@ -6,10 +6,19 @@ from tqdm import tqdm
 from torch.optim import AdamW
 from sacrebleu.metrics import BLEU
 
+# dictionary for the language to prefix
+prefix = {
+    'eng_Latn': 'English: ',
+    'deu_Latn': 'German: ',
+    'fra_Latn': 'French: ',
+    'nld_Latn': 'Dutch: '
+}
+
 # state the parameters
 source_lang = 'eng_Latn'
 target_lang = 'deu_Latn'
-prefix = 'Translate from English to German: '
+prefix_L1 = prefix[source_lang]
+prefix_L2 = prefix[target_lang]
 model_name = 't5-small'
 MAX_LEN = 128
 MAX_LEN_OUTPUT = 200
@@ -30,10 +39,10 @@ if model_name == 'meta-llama/Llama-2-7b-chat-hf':
     tokenizer.pad_token = tokenizer.eos_token
 
 # get samples from dev set for few-shot learning
-flores200_few_shot = load_flores200_few_shot('dev', source_lang, target_lang, prefix, num_samples)
+flores200_few_shot = load_flores200_few_shot('dev', source_lang, target_lang, prefix_L1, prefix_L2, num_samples)
 
 # get the devtest set for evaluation
-flores200_devtest = load_flores200('devtest', source_lang, target_lang, prefix)
+flores200_devtest = load_flores200('devtest', source_lang, target_lang, prefix_L1, prefix_L2)
 
 # tokenize the dev & devtest set
 tokenized_flores200_few_shot = tokenize_data(flores200_few_shot, source_lang, target_lang, tokenizer,

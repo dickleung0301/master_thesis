@@ -5,13 +5,22 @@ import torch
 from tqdm import tqdm
 from sacrebleu.metrics import BLEU
 
+# dictionary for the language to prefix
+prefix = {
+    'eng_Latn': 'English: ',
+    'deu_Latn': 'German: ',
+    'fra_Latn': 'French: ',
+    'nld_Latn': 'Dutch: '
+}
+
 # state the parameters
 source_lang = 'eng_Latn'
 target_lang = 'deu_Latn'
-prefix = 'Translate from English to German: '
+prefix_L1 = 'English: '
+prefix_L2 = 'German: '
 model_name = 't5-small'
 MAX_LEN = 1024
-MAX_LEN_OUTPUT = 1100
+MAX_LEN_OUTPUT = 128
 num_example = 3
 num_inference = 5
 
@@ -25,7 +34,7 @@ if model_name == 'meta-llama/Llama-2-7b-chat-hf':
 bleu = BLEU()
 
 # get the dev set of flores-200
-flores200_dev = load_flores200_few_shot_in_context('dev', source_lang, target_lang, prefix, num_example, num_inference)
+flores200_dev = load_flores200_few_shot_in_context('dev', source_lang, target_lang, prefix_L1, prefix_L2, num_example, num_inference)
 
 # tokenize the dev set
 tokenized_flores200_dev = tokenize_data(flores200_dev, source_lang, target_lang, tokenizer,
