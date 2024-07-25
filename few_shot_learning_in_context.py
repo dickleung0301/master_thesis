@@ -62,7 +62,10 @@ for batch in loop:
     input_ids, attention_mask, target_ids = batch # in a shape of (batch, input, attn, target)
 
     with torch.no_grad():
-        translation = model.generate(input_ids=input_ids, attention_mask=attention_mask, max_length=MAX_LEN_OUTPUT)
+        if model_name == 'meta-llama/Llama-2-7b-chat-hf' or model_name == 'meta-llama/Meta-Llama-3.1-8B-Instruct' or model_name == "meta-llama/Meta-Llama-3.1-8B":
+            translation = model.generate(input_ids=input_ids, attention_mask=attention_mask, max_new_tokens=MAX_LEN_OUTPUT)
+        else:
+            translation = model.generate(input_ids=input_ids, attention_mask=attention_mask, max_length=MAX_LEN_OUTPUT)
 
     for i in range(num_inference):
         source_sentence = tokenizer.decode(input_ids[i], skip_special_tokens=True)

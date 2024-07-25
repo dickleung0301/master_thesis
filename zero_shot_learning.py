@@ -16,7 +16,7 @@ model = config['model']
 
 # state the parameters
 source_lang = 'eng_Latn'
-target_lang = 'fra_Latn'
+target_lang = 'nld_Latn'
 prefix_L1 = prefix[source_lang]
 prefix_L2 = prefix[target_lang]
 model_choice = '1'
@@ -62,7 +62,10 @@ for batch in loop:
     input_ids, attention_mask, target_ids = batch # in a shape of (batch, input, attn, target)
 
     with torch.no_grad():
-        translation = model.generate(input_ids=input_ids, attention_mask=attention_mask, max_length=MAX_LEN_OUTPUT)
+        if model_name == 'meta-llama/Llama-2-7b-chat-hf' or model_name == 'meta-llama/Meta-Llama-3.1-8B-Instruct' or model_name == "meta-llama/Meta-Llama-3.1-8B":
+            translation = model.generate(input_ids=input_ids, attention_mask=attention_mask, max_new_tokens=MAX_LEN_OUTPUT)
+        else:
+            translation = model.generate(input_ids=input_ids, attention_mask=attention_mask, max_length=MAX_LEN_OUTPUT)
 
     # print the first pair of translation in every 10 batches & the blue score it
     if count % iter_for_showing_result == 0:

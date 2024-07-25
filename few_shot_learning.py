@@ -103,7 +103,10 @@ for batch in loop:
     input_ids, attention_mask, target_ids = batch
 
     with torch.no_grad():
-        translation = model.generate(input_ids=input_ids, attention_mask=attention_mask, max_length=MAX_LEN_OUTPUT)
+        if model_name == 'meta-llama/Llama-2-7b-chat-hf' or model_name == 'meta-llama/Meta-Llama-3.1-8B-Instruct' or model_name == "meta-llama/Meta-Llama-3.1-8B":
+            translation = model.generate(input_ids=input_ids, attention_mask=attention_mask, max_new_tokens=MAX_LEN_OUTPUT)
+        else:
+            translation = model.generate(input_ids=input_ids, attention_mask=attention_mask, max_length=MAX_LEN_OUTPUT)
 
     # print the first pair of translation in every 10 batches
     if count % iter_for_showing_result == 0:
