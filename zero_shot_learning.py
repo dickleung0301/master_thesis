@@ -22,7 +22,7 @@ prefix_L2 = prefix[target_lang]
 model_choice = '1'
 model_name = model[model_choice]
 MAX_LEN = 128
-MAX_LEN_OUTPUT = 200
+MAX_LEN_OUTPUT = 128
 count = 0
 iter_for_showing_result = 10
 
