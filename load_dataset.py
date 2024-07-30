@@ -95,6 +95,22 @@ def load_flores200_few_shot_in_context(split, source_lang, target_lang, prefix_L
     except Exception as e:
         raise DataLoadingError(f"There is something wrong in loading flores-200 for few-shot in context: {e}")
 
+# load data for sanity check
+def load_flores200_sanity_check(split, source_lang, target_lang, prefix_L1, prefix_L2, index):
+
+    try:
+        flores200_src = load_dataset('facebook/flores', source_lang)[split]
+        temp = "<|begin_of_text|>\n<|start_header_id|>system<|end_header_id|>\nYou are a helpful AI assistant for translations\n<|eot_id|>\n<|start_header_id|>user<|end_header_id|>\n"
+        temp2 = '\n' + '<|start_header_id|>assistant<|end_header_id|>'
+        data = {}
+        data['id'] = flores200_src[index]['id']
+        data[source_lang] = [temp + prefix_L1 + flores200_src[index]['sentence'] + ' = ' + prefix_L2 + temp2]
+        data[target_lang] = load_dataset('facebook/flores', target_lang)[split][index]['sentence']
+
+        return data        
+    except Exception as e:
+        raise DataLoadingError(f"There is something wrong in loading flores-200 for sanity check: {e}")
+
 def tokenize_data(data, source_lang, target_language, tokenizer, truncation, MAX_LEN):
 
     try:
