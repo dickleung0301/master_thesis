@@ -8,9 +8,11 @@ def load_flores200(split, source_lang, target_lang, prefix_L1, prefix_L2):
 
     try:
         flores200_src = load_dataset('facebook/flores', source_lang)[split]
+        temp = "<|begin_of_text|>\n<|start_header_id|>system<|end_header_id|>\nYou are a helpful AI assistant for translations\n<|eot_id|>\n<|start_header_id|>user<|end_header_id|>\n"
+        temp2 = '\n' + '<|start_header_id|>assistant<|end_header_id|>'
         data = {}
         data['id'] = flores200_src['id']
-        data[source_lang] = [prefix_L1 + x + ' = ' + prefix_L2 for x in flores200_src['sentence']]
+        data[source_lang] = [temp + prefix_L1 + x + ' = ' + prefix_L2 + temp2 for x in flores200_src['sentence']]
         data[target_lang] = load_dataset('facebook/flores', target_lang)[split]['sentence']
 
         return data
@@ -37,9 +39,13 @@ def load_flores200_few_shot(split, source_lang, target_lang, prefix_L1, prefix_L
             target_lang: [],
         }
 
+        # the prompt format of llama 3
+        temp = "<|begin_of_text|>\n<|start_header_id|>system<|end_header_id|>\nYou are a helpful AI assistant for translations\n<|eot_id|>\n<|start_header_id|>user<|end_header_id|>\n"
+        temp2 = '\n' + '<|start_header_id|>assistant<|end_header_id|>'
+
         for idx in example_idx:
             data['id'].append(flores200_src['id'][idx])
-            data[source_lang].append(prefix_L1 + flores200_src['sentence'][idx] + ' = ' + prefix_L2)
+            data[source_lang].append(temp + prefix_L1 + flores200_src['sentence'][idx] + ' = ' + prefix_L2 + temp2)
             data[target_lang].append(flores200_trg['sentence'][idx])
 
         return data 
