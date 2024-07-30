@@ -100,12 +100,13 @@ def load_flores200_sanity_check(split, source_lang, target_lang, prefix_L1, pref
 
     try:
         flores200_src = load_dataset('facebook/flores', source_lang)[split]
+        flores200_trg = load_dataset('facebook/flores', target_lang)[split]
         temp = "<|begin_of_text|>\n<|start_header_id|>system<|end_header_id|>\nYou are a helpful AI assistant for translations\n<|eot_id|>\n<|start_header_id|>user<|end_header_id|>\n"
         temp2 = '\n' + '<|start_header_id|>assistant<|end_header_id|>'
         data = {}
-        data['id'] = flores200_src[index]['id']
+        data['id'] = [flores200_src[index]['id']]
         data[source_lang] = [temp + prefix_L1 + flores200_src[index]['sentence'] + ' = ' + prefix_L2 + temp2]
-        data[target_lang] = load_dataset('facebook/flores', target_lang)[split][index]['sentence']
+        data[target_lang] = [flores200_trg[index]['sentence']]
 
         return data        
     except Exception as e:
