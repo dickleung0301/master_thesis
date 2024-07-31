@@ -1,11 +1,12 @@
 from load_dataset import *
 from model import *
 from exception import *
+from helper_function import *
 import torch
 from tqdm import tqdm
 from torch.optim import AdamW
-from sacrebleu.metrics import BLEU
 import json
+import os
 
 # load the config file
 with open('config.json', 'r') as f:
@@ -15,91 +16,94 @@ with open('config.json', 'r') as f:
 prefix = config['prefix']
 model = config['model']
 
+# check the device on the machine
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
 # state the parameters
 source_lang = 'eng_Latn'
-target_lang = 'nld_Latn'
+target_lang = 'deu_Latn'
 prefix_L1 = prefix[source_lang]
 prefix_L2 = prefix[target_lang]
-model_choice = '1'
+model_choice = '6'
 model_name = model[model_choice]
 MAX_LEN = 128
 MAX_LEN_OUTPUT = 128
-count = 0
-iter_for_showing_result = 10
-num_samples = 5
-num_epochs = 5
+num_samples = 4
 model_path = './few_shot_learned_model'
 save_model = False
+
+# get the current working directory
+cwd = os.getcwd()
+save_directory = cwd + '/few_shot_result'
+
+# the corpus for translation and target sentence
+translations = ''
+target_sentences = ''
 
 # get the pretrained model & tokenizer
 model, tokenizer = model_factory(model_name)
 
-# set up the BLEU object for evaluation
-bleu = BLEU()
-
 if model_name == 'meta-llama/Llama-2-7b-chat-hf' or model_name == 'meta-llama/Meta-Llama-3.1-8B-Instruct' or model_name == "meta-llama/Meta-Llama-3.1-8B":
     tokenizer.pad_token = tokenizer.eos_token
 
-# get samples from dev set for few-shot learning
-flores200_few_shot = load_flores200_few_shot('dev', source_lang, target_lang, prefix_L1, prefix_L2, num_samples)
+# get samples from devtest set for few-shot learning
+flores200_few_shot = load_flores200_few_shot('devtest', source_lang, target_lang, prefix_L1, prefix_L2, num_samples)
 
-# get the devtest set for evaluation
-flores200_devtest = load_flores200('devtest', source_lang, target_lang, prefix_L1, prefix_L2)
+# get the dev set for evaluation
+flores200_dev = load_flores200('dev', source_lang, target_lang, prefix_L1, prefix_L2)
 
 # tokenize the dev & devtest set
 tokenized_flores200_few_shot = tokenize_data(flores200_few_shot, source_lang, target_lang, tokenizer,
                                             truncation=True, MAX_LEN=MAX_LEN)
 
-tokenized_flores200_devtest = tokenize_data(flores200_devtest, source_lang, target_lang, tokenizer,
+tokenized_flores200_dev = tokenize_data(flores200_dev, source_lang, target_lang, tokenizer,
                                             truncation=True, MAX_LEN=MAX_LEN)
 
 # create attention mask
 tokenized_flores200_few_shot['attention_mask'] = [[1 if token != tokenizer.pad_token_id else 0 for token in x] for x in tokenized_flores200_few_shot['input_ids']]
 attention_mask_few_shot = torch.tensor(tokenized_flores200_few_shot['attention_mask'])
-tokenized_flores200_devtest['attention_mask'] = [[1 if token != tokenizer.pad_token_id else 0 for token in x] for x in tokenized_flores200_devtest['input_ids']]
-attention_mask_devtest = torch.tensor(tokenized_flores200_devtest['attention_mask'])
+tokenized_flores200_dev['attention_mask'] = [[1 if token != tokenizer.pad_token_id else 0 for token in x] for x in tokenized_flores200_dev['input_ids']]
+attention_mask_devtest = torch.tensor(tokenized_flores200_dev['attention_mask'])
 
 # create dataloader
-dataloader_few_shot = create_dataloader(torch.tensor(tokenized_flores200_few_shot['input_ids']),
-                                        attention_mask_few_shot,
-                                        torch.tensor(tokenized_flores200_few_shot['target_ids']),
+dataloader_few_shot = create_dataloader(torch.tensor(tokenized_flores200_few_shot['input_ids']).to(device),
+                                        attention_mask_few_shot.to(device),
+                                        torch.tensor(tokenized_flores200_few_shot['target_ids']).to(device),
                                         batch_size=num_samples)
-dataloader_devtest = create_dataloader(torch.tensor(tokenized_flores200_devtest['input_ids']),
-                                        attention_mask_devtest,
-                                        torch.tensor(tokenized_flores200_devtest['target_ids']),
+dataloader_dev = create_dataloader(torch.tensor(tokenized_flores200_dev['input_ids']).to(device),
+                                        attention_mask_devtest.to(device),
+                                        torch.tensor(tokenized_flores200_dev['target_ids']),
                                         batch_size=32)
 
 # training-loop for few-shot learning
 model.train()
 optimizer = AdamW(model.parameters(), lr=5e-5)
 
-for epoch in range(num_epochs):
+# set up the progress bar
+learning_loop = tqdm(dataloader_few_shot, leave=True, desc=f'{num_samples}_shot_learning')
 
-    # set up the progress bar
-    loop = tqdm(dataloader_few_shot, leave=True, desc=f'Epoch {epoch + 1}')
+for batch in learning_loop:
+    input_ids, attention_mask, target_ids = batch # in a shape of (batch, input, attn, output)
 
-    for batch in loop:
-        input_ids, attention_mask, target_ids = batch # in a shape of (batch, input, attn, output)
+    # forward pass
+    outputs = model(input_ids=input_ids, attention_mask=attention_mask, labels=target_ids)
+    loss = outputs.loss
 
-        # forward pass
-        outputs = model(input_ids=input_ids, attention_mask=attention_mask, labels=target_ids)
-        loss = outputs.loss
+    # Backprop
+    loss.backward()
 
-        # Backprop
-        loss.backward()
+    # weight update
+    optimizer.step()
+    optimizer.zero_grad() # reset the gradient
 
-        # weight update
-        optimizer.step()
-        optimizer.zero_grad() # reset the gradient
-
-        # print the loss
-        loop.set_postfix(loss=loss.item())
+    # print the loss
+    learning_loop.set_postfix(loss=loss.item())
 
 # evaluation of the learned PLM
 model.eval()
-loop = tqdm(dataloader_devtest, leave=True, desc='Evaluation')
+eval_loop = tqdm(dataloader_dev, leave=True, desc='Evaluation')
 
-for batch in loop:
+for batch in eval_loop:
     input_ids, attention_mask, target_ids = batch
 
     with torch.no_grad():
@@ -108,32 +112,21 @@ for batch in loop:
         else:
             translation = model.generate(input_ids=input_ids, attention_mask=attention_mask, max_length=MAX_LEN_OUTPUT)
 
-    # print the first pair of translation in every 10 batches
-    if count % iter_for_showing_result == 0:
+    translation = translation.to('cpu')
 
-        source_sentence = tokenizer.decode(input_ids[0], skip_special_tokens=True)
-        target_sentence = tokenizer.decode(target_ids[0], skip_special_tokens=True)
-        translated_sentence = tokenizer.decode(translation[0], skip_special_tokens=True)
+    # add the translations and target sentences to the 
+    for trans_sent in translation:
+        translated_sentence = tokenizer.decode(trans_sent, skip_special_tokens=True)
+        translated_sentence = strip_llama_output(translated_sentence)
+        translations += (translated_sentence + '\n')
 
-        print("The original source sentence:")
-        print(source_sentence)
-        print("\n")
-        print("The original target sentence:")
-        print(target_sentence)
-        print("\n")
-        print("The translation from the PLM:")
-        print(translated_sentence)
-        print("\n")
+    for trg_sent in target_ids:
+        target_sentence = tokenizer.decode(trg_sent, skip_special_tokens=True)
+        target_sentence = target_sentence.replace('"', '')
+        target_sentences += (target_sentence + '\n')
 
-        # set up the refs & hyp for evaluation
-        # hyp = [translated_sentence]
-        refs = [target_sentence]
-
-        score = bleu.sentence_score(translated_sentence, refs)
-        print(f'BLUE score: {score}')
-        print("\n")
-
-    count += 1
+save_corpus(translations, save_directory, source_lang, target_lang)
+save_corpus(target_sentences, save_directory, source_lang, target_lang, translation=False)
 
 # save the few-shot learned model
 if save_model:
