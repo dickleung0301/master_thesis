@@ -7,6 +7,7 @@ from tqdm import tqdm
 from torch.optim import AdamW
 import json
 import os
+from peft import prepare_model_for_kbit_training
 
 # load the config file
 with open('config.json', 'r') as f:
@@ -76,6 +77,7 @@ dataloader_dev = create_dataloader(torch.tensor(tokenized_flores200_dev['input_i
                                         batch_size=32)
 
 # training-loop for few-shot learning
+model = prepare_model_for_kbit_training(model)
 model.train()
 optimizer = AdamW(model.parameters(), lr=5e-5)
 
@@ -108,13 +110,15 @@ for batch in eval_loop:
 
     with torch.no_grad():
         if model_name == 'meta-llama/Llama-2-7b-chat-hf' or model_name == 'meta-llama/Meta-Llama-3.1-8B-Instruct' or model_name == "meta-llama/Meta-Llama-3.1-8B":
-            translation = model.generate(input_ids=input_ids, attention_mask=attention_mask, max_new_tokens=MAX_LEN_OUTPUT)
+            translation = model.generate(input_ids=input_ids, attention_mask=attention_mask, max_new_tokens=MAX_LEN_OUTPUT,
+                                         do_sample=False, temperature=1.0, top_p=1.0)
         else:
-            translation = model.generate(input_ids=input_ids, attention_mask=attention_mask, max_length=MAX_LEN_OUTPUT)
+            translation = model.generate(input_ids=input_ids, attention_mask=attention_mask, max_length=MAX_LEN_OUTPUT,
+                                         do_sample=False, temperature=1.0, top_p=1.0)
 
     translation = translation.to('cpu')
 
-    # add the translations and target sentences to the 
+    # add the translations and target sentences to the
     for trans_sent in translation:
         translated_sentence = tokenizer.decode(trans_sent, skip_special_tokens=True)
         translated_sentence = strip_llama_output(translated_sentence)
