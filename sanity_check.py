@@ -14,9 +14,12 @@ with open('config.json', 'r') as f:
 prefix = config['prefix']
 model = config['model']
 
+# check the device on the machine
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
 # state the parameters
 source_lang = 'eng_Latn'
-target_lang = 'nld_Latn'
+target_lang = 'deu_Latn'
 prefix_L1 = prefix[source_lang]
 prefix_L2 = prefix[target_lang]
 model_choice = '6'
@@ -45,8 +48,8 @@ tokenized_sanity_check['attention_mask'] = [1 if token != tokenizer.pad_token_id
 attention_mask = torch.tensor([tokenized_sanity_check['attention_mask']])
 
 # Create the dataloader
-dataloader_sanity_check = create_dataloader(torch.tensor(tokenized_sanity_check['input_ids']),
-                                        attention_mask,
+dataloader_sanity_check = create_dataloader(torch.tensor(tokenized_sanity_check['input_ids']).to(device),
+                                        attention_mask.to(device),
                                         torch.tensor(tokenized_sanity_check['target_ids']),
                                         batch_size=1)
 
@@ -61,9 +64,13 @@ for iter in range(iter_sanity_check):
 
         with torch.no_grad():
             if model_name == 'meta-llama/Llama-2-7b-chat-hf' or model_name == 'meta-llama/Meta-Llama-3.1-8B-Instruct' or model_name == "meta-llama/Meta-Llama-3.1-8B":
-                translation = model.generate(input_ids=input_ids, attention_mask=attention_mask, max_new_tokens=MAX_LEN_OUTPUT, do_sample=False)
+                translation = model.generate(input_ids=input_ids, attention_mask=attention_mask, max_new_tokens=MAX_LEN_OUTPUT, 
+                                             do_sample=False, temperature=1.0, top_p=1.0)
             else:
-                translation = model.generate(input_ids=input_ids, attention_mask=attention_mask, max_length=MAX_LEN_OUTPUT, do_sample=False)
+                translation = model.generate(input_ids=input_ids, attention_mask=attention_mask, max_length=MAX_LEN_OUTPUT, 
+                                             do_sample=False, temperature=1.0, top_p=1.0)
+                
+        translation = translation.to('cpu')
 
         source_sentence = tokenizer.decode(input_ids[0], skip_special_tokens=True)
         target_sentence = tokenizer.decode(target_ids[0], skip_special_tokens=True)
