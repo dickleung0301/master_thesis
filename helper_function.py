@@ -11,6 +11,10 @@ def strip_llama_output(generation):
     return output
 
 # a function to save the corpus
-def save_corpus(corpus, save_directory, source_lang, target_lang):
-    with open(save_directory + '/' + source_lang + '2' + target_lang + '.txt', 'w') as file:
+def save_corpus(corpus, save_directory, source_lang, target_lang, translation=True):
+    if translation:
+        temp = '_trans'
+    else:
+        temp ='_trg'
+    with open(save_directory + '/' + source_lang + '2' + target_lang + temp + '.txt', 'w') as file:
         file.write(corpus)
