@@ -34,7 +34,8 @@ model, tokenizer = model_factory(model_name)
 
 # set the padding token of llama to the eos token of llama
 if model_name == 'meta-llama/Llama-2-7b-chat-hf' or model_name == 'meta-llama/Meta-Llama-3.1-8B-Instruct' or model_name == "meta-llama/Meta-Llama-3.1-8B":
-    tokenizer.pad_token = tokenizer.eos_token
+    tokenizer.pad_token = tokenizer.bos_token
+    tokenizer.padding_side = 'left'
 
 # get the specific data for sanity check
 sanity_check = load_flores200_sanity_check('dev', source_lang, target_lang, prefix_L1, prefix_L2, data_index)

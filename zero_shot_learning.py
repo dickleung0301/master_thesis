@@ -41,7 +41,8 @@ model, tokenizer = model_factory(model_name)
 
 # set the padding token as the eos token for llama
 if model_name == 'meta-llama/Llama-2-7b-chat-hf' or model_name == 'meta-llama/Meta-Llama-3.1-8B-Instruct' or model_name == "meta-llama/Meta-Llama-3.1-8B":
-    tokenizer.pad_token = tokenizer.eos_token
+    tokenizer.pad_token = tokenizer.bos_token
+    tokenizer.padding_side = 'left'
 
 # get the dev set of flores-200
 flores200_dev = load_flores200('dev', source_lang, target_lang, prefix_L1, prefix_L2)

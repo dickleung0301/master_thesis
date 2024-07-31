@@ -45,7 +45,8 @@ target_sentences = ''
 model, tokenizer = model_factory(model_name)
 
 if model_name == 'meta-llama/Llama-2-7b-chat-hf' or model_name == 'meta-llama/Meta-Llama-3.1-8B-Instruct' or model_name == "meta-llama/Meta-Llama-3.1-8B":
-    tokenizer.pad_token = tokenizer.eos_token
+    tokenizer.pad_token = tokenizer.bos_token
+    tokenizer.padding_side = 'left'
 
 # get samples from devtest set for few-shot learning
 flores200_few_shot = load_flores200_few_shot('devtest', source_lang, target_lang, prefix_L1, prefix_L2, num_samples)
