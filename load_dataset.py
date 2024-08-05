@@ -53,20 +53,19 @@ def load_flores200_few_shot(split, source_lang, target_lang, prefix_L1, prefix_L
     except Exception as e:
         raise DataLoadingError(f"There is something wrong in loading flores-200 for few-shot: {e}")
 
-def load_flores200_few_shot_in_context(split, source_lang, target_lang, prefix_L1, prefix_L2, num_example, num_inference):
+def load_flores200_few_shot_in_context(split, example_split, source_lang, target_lang, prefix_L1, prefix_L2, num_example):
 
     try:
         # load the source lang & target lang
         flores200_src = load_dataset('facebook/flores', source_lang)[split]
         flores200_trg = load_dataset('facebook/flores', target_lang)[split]
 
-        # sample the idx for the sentence we want to translate
-        total_num_sample = len(flores200_src)
-        translate_idx = np.random.randint(low=0, high=total_num_sample, size=num_inference)
+        # load the sorce lang & target lang for example split
+        example_src = load_dataset('facebook/flores', source_lang)[example_split]
+        example_trg = load_dataset('facebook/flores', target_lang)[example_split]
 
-        # to get the idx of the dataset excluding those we took it for translation
-        idx = np.arange(0, total_num_sample)
-        example_idx = np.setdiff1d(idx, translate_idx)
+        # the index of the examples
+        example_idx = np.arange(len(example_src))
 
         # constructing the dictionary for few-shot learning
         data = {
@@ -75,15 +74,17 @@ def load_flores200_few_shot_in_context(split, source_lang, target_lang, prefix_L
             target_lang: [],
         }
 
-        for i in translate_idx:
+        for i in range(len(flores200_src)):
             chosen_examples = np.random.choice(example_idx, size=num_example, replace=False)
-            temp = "<|begin_of_text|>\n<|start_header_id|>system<|end_header_id|>\nYou are a helpful AI assistant for translations\n<|eot_id|>\n<|start_header_id|>user<|end_header_id|>\n"
+            user = "<|start_header_id|>user<|end_header_id|>\n"
+            assistant = "<|start_header_id|>assistant<|end_header_id|>\n"
+            end_id = "<|eot_id|>"
+            temp = "<|begin_of_text|>\n<|start_header_id|>system<|end_header_id|>\nYou are a helpful AI assistant for translations\n<|eot_id|>\n"
             temp2 = []
             for j in chosen_examples:
-                temp += prefix_L1 + flores200_src['sentence'][j] + ' = ' + prefix_L2 + flores200_trg['sentence'][j] + '\n'
+                temp += user + prefix_L1 + example_src['sentence'][j] + '\n' + end_id + assistant + prefix_L2 + example_trg['sentence'][j] + '\n' + end_id
                 temp2.append(j)
-            temp += prefix_L1 + flores200_src['sentence'][i] + ' = ' + prefix_L2 + '\n' +' <|eot_id|>'
-            temp += '\n' + '<|start_header_id|>assistant<|end_header_id|>'
+            temp += user + prefix_L1 + flores200_src['sentence'][i] + '\n' + end_id + assistant
             temp2.append(i)
             
             data['id'].append(temp2)

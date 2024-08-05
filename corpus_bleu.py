@@ -3,7 +3,7 @@ import os
 
 # get the current and file directory
 cwd = os.getcwd()
-file_dir = '/few_shot_result/'
+file_dir = '/few_shot_in_context/'
 source_lang = 'eng_Latn'
 target_lang = 'deu_Latn'
 trans_path = cwd + file_dir + source_lang +'2' + target_lang +'_trans.txt'
