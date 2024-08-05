@@ -89,7 +89,6 @@ for batch in loop:
 
     for trg_sent in target_ids:
         target_sentence = tokenizer.decode(trg_sent, skip_special_tokens=True)
-        target_sentence = target_sentence.replace('"', '')
         target_sentences += (target_sentence + '\n')
 
 save_corpus(translations, save_directory, source_lang, target_lang)
