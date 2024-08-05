@@ -84,7 +84,7 @@ for batch in loop:
     # add the translations and target sentences to the corpus
     for trans_sent in translation:
         translated_sentence = tokenizer.decode(trans_sent, skip_special_tokens=True)
-        translated_sentence = strip_llama_output(translated_sentence)
+        translated_sentence = strip_zero_shot(translated_sentence)
         translations += (translated_sentence + '\n')
 
     for trg_sent in target_ids:
