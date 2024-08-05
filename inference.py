@@ -26,8 +26,11 @@ def inference(inference_type, num_example=None, source_lang='eng_Latn', target_l
     prefix_L2 = prefix[target_lang]
     model_choice = '6'
     model_name = model[model_choice]
-    MAX_LEN = 512
+    MAX_LEN = 128
     MAX_LEN_OUTPUT = 128
+
+    if inference_type == "few_shot":
+        MAX_LEN = 512
 
     # get the current working directory
     cwd = os.getcwd()
