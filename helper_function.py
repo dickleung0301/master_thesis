@@ -1,24 +1,19 @@
 # a function to post-process the generation from llama
 def strip_zero_shot(generation):
     punctuation_to_stop = '.'
-    promt_format = 'assistant'
+    promt_format = 'assistant\n'
     striped_generation = generation.split(promt_format)[-1]
-    output = striped_generation.split(punctuation_to_stop)[0]
-    output += punctuation_to_stop
-    output = output.strip()
+    striped_generation = striped_generation.strip()
 
-    return output
+    return striped_generation
 
 # a function to post-process the generation of in-context learning for llama
 def strip_in_context(generation, prefix_L2):
-    punctuation_to_stop = '.'
     phase_to_strip = prefix_L2
     striped_generation = generation.split(phase_to_strip)[-1]
-    output = striped_generation.split(punctuation_to_stop)[0]
-    output += punctuation_to_stop
-    output = output.strip()
+    striped_generation = striped_generation.strip()
 
-    return output
+    return striped_generation
 
 # a function to save the corpus
 def save_corpus(corpus, save_directory, source_lang, target_lang, translation=True):
