@@ -7,7 +7,7 @@ from tqdm import tqdm
 import json
 import os
 
-def inference(inference_type, num_example=None, source_lang='eng_Latn', target_lang = 'deu_Latn', model_choice = '6'):
+def inference(inference_type, num_example=None, src_lang='eng_Latn', trg_lang = 'deu_Latn', model_idx = '6'):
     # load the config file
     with open('config.json', 'r') as f:
         config = json.load(f)
@@ -20,11 +20,11 @@ def inference(inference_type, num_example=None, source_lang='eng_Latn', target_l
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     # state the parameters
-    source_lang = 'eng_Latn'
-    target_lang = 'deu_Latn'
+    source_lang = src_lang
+    target_lang = trg_lang
     prefix_L1 = prefix[source_lang]
     prefix_L2 = prefix[target_lang]
-    model_choice = '6'
+    model_choice = model_idx
     model_name = model[model_choice]
     MAX_LEN = 128
     MAX_LEN_OUTPUT = 128
@@ -39,9 +39,11 @@ def inference(inference_type, num_example=None, source_lang='eng_Latn', target_l
     elif inference_type == 'few_shot':
         save_directory = cwd + '/few_shot_in_context_result'
 
-    # the corpus for translation and target sentence
+    # the corpus for translation and target sentence, and the list for comet evaluation
     translations = ''
     target_sentences = ''
+    original_output = ''
+    comet_eval = []
 
     # get the pretrained model & tokenizer
     model, tokenizer = model_factory(model_name)
@@ -69,6 +71,7 @@ def inference(inference_type, num_example=None, source_lang='eng_Latn', target_l
     dataloader = create_dataloader(torch.tensor(tokenized_flores200['input_ids']).to(device),
                                     attention_mask.to(device),
                                     torch.tensor(tokenized_flores200['target_ids']),
+                                    torch.tensor(tokenized_flores200['src_ids']),
                                     batch_size=32)
 
     # zero-shot-learning-loop
@@ -77,7 +80,7 @@ def inference(inference_type, num_example=None, source_lang='eng_Latn', target_l
 
     for batch in loop:
 
-        input_ids, attention_mask, target_ids = batch # in a shape of (batch, input, attn, target)
+        input_ids, attention_mask, target_ids, src_ids = batch # in a shape of (batch, input, attn, target)
 
         with torch.no_grad():
             if model_name == 'meta-llama/Llama-2-7b-chat-hf' or model_name == 'meta-llama/Meta-Llama-3.1-8B-Instruct' or model_name == "meta-llama/Meta-Llama-3.1-8B":
@@ -90,17 +93,34 @@ def inference(inference_type, num_example=None, source_lang='eng_Latn', target_l
         translation = translation.to('cpu')
 
         # add the translations and target sentences to the corpus
-        for trans_sent in translation:
-            translated_sentence = tokenizer.decode(trans_sent, skip_special_tokens=True)
+        for i in range(len(input_ids)):
+            # save the translation into output and translations corpus
+            translated_sentence = tokenizer.decode(translation[i], skip_special_tokens=True)
+            original_output += (translated_sentence + '\n')
             if inference_type == 'zero_shot':
                 translated_sentence = strip_zero_shot(translated_sentence)
             elif inference_type == 'few_shot':
                 translated_sentence = strip_in_context(translated_sentence, prefix_L2)
             translations += (translated_sentence + '\n')
 
-        for trg_sent in target_ids:
-            target_sentence = tokenizer.decode(trg_sent, skip_special_tokens=True)
+            # save the target into target corpus
+            target_sentence = tokenizer.decode(target_ids[i], skip_special_tokens=True)
             target_sentences += (target_sentence + '\n')
 
+            # constructing the data for comet evaluation
+            data = {
+                "src": tokenizer.decode(src_ids[i], skip_special_tokens=True),
+                "mt": translated_sentence,
+                "ref": target_sentence
+            }
+            comet_eval.append(data)
+
     save_corpus(translations, save_directory, source_lang, target_lang)
+    save_corpus(original_output, save_directory, source_lang, target_lang, original=True)
     save_corpus(target_sentences ,save_directory, source_lang, target_lang, translation=False)
+    
+    # save the list for comet evaluation
+    output_file = open(save_directory + '/' + source_lang + '2' + target_lang + '_comet', 'w', encoding='utf-8') 
+    for data in comet_eval:
+        json.dump(data, output_file)
+        output_file.write("\n")

@@ -16,10 +16,12 @@ def strip_in_context(generation, prefix_L2):
     return striped_generation
 
 # a function to save the corpus
-def save_corpus(corpus, save_directory, source_lang, target_lang, translation=True):
-    if translation:
+def save_corpus(corpus, save_directory, source_lang, target_lang, translation=True, original=False):
+    if translation and not original:
         temp = '_trans'
-    else:
+    elif translation and original:
+        temp = '_original_output'
+    elif not translation:
         temp ='_trg'
     with open(save_directory + '/' + source_lang + '2' + target_lang + temp + '.txt', 'w') as file:
         file.write(corpus)

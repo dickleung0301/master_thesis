@@ -5,7 +5,7 @@ tokenizers
 datasets
 sentencepiece
 sacrebleu
-dotenv
+python-dotenv
 huggingface_hub
 bitsandbytes
 git+https://github.com/huggingface/transformers.git

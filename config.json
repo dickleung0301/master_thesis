@@ -3,7 +3,10 @@
         "eng_Latn": "English: ",
         "deu_Latn": "German: ",
         "fra_Latn": "French: ",
-        "nld_Latn": "Dutch: "
+        "nld_Latn": "Dutch: ",
+        "gle_Latn": "Irish: ",
+        "kat_Geor": "Georgian: ",
+        "kir_Cyrl": "Kyrgyz: "
     },
 
     "model": {
