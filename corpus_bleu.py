@@ -5,9 +5,10 @@ import os
 cwd = os.getcwd()
 file_dir = '/zero_shot_result/'
 source_lang = 'eng_Latn'
-target_lang = 'deu_Latn'
-trans_path = cwd + file_dir + source_lang +'2' + target_lang +'_trans.txt'
-trg_path = cwd + file_dir + source_lang +'2' + target_lang +'_trg.txt'
+target_lang = 'gle_Latn'
+trans_path = cwd + file_dir + source_lang +'2' + target_lang + '_trans.txt'
+trg_path = cwd + file_dir + source_lang +'2' + target_lang + '_trg.txt'
+save_path = cwd + file_dir + source_lang + '2' + target_lang + '.bleu'
 
 # read the translation and target file
 with open(trans_path, 'r') as f:
@@ -19,3 +20,7 @@ with open(trg_path, 'r') as f:
 # calculate the corpus bleu score
 bleu = sacrebleu.corpus_bleu(trans_corpus, [trg_corpus])
 print(bleu.score)
+
+# save the corpus bleu score
+with open(save_path, 'w') as f:
+    f.write(f"BLEU Score: {bleu.score}\n")
