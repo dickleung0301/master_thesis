@@ -30,7 +30,7 @@ def inference(inference_type, num_example=None, src_lang='eng_Latn', trg_lang = 
     MAX_LEN_OUTPUT = 128
 
     if inference_type == "few_shot":
-        MAX_LEN = 512
+        MAX_LEN = 1024
 
     # get the current working directory
     cwd = os.getcwd()

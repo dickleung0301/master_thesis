@@ -6,7 +6,10 @@
         "nld_Latn": "Dutch: ",
         "gle_Latn": "Irish: ",
         "kat_Geor": "Georgian: ",
-        "kir_Cyrl": "Kyrgyz: "
+        "kir_Cyrl": "Kyrgyz: ",
+        "gla_Latn": "Scottish Gaelic: ",
+        "ltz_Latn": "Luxembourgish: ",
+        "epo_Latn": "Esperanto: "
     },
 
     "model": {

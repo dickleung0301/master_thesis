@@ -88,7 +88,7 @@ def load_flores200_few_shot_in_context(split, example_split, source_lang, target
             temp = "<|begin_of_text|>\n<|start_header_id|>system<|end_header_id|>\nYou are a helpful AI assistant for translations\n<|eot_id|>\n"
             for j in chosen_examples:
                 temp += user + prefix_L1 + example_src['sentence'][j] + '\n' + end_id + assistant + prefix_L2 + example_trg['sentence'][j] + '\n' + end_id
-            temp += user + prefix_L1 + flores200_src['sentence'][i] + '\n' + end_id + assistant
+            temp += user + prefix_L1 + flores200_src['sentence'][i] + prefix_L2 + '\n' + end_id + assistant
             
             data[source_lang].append(temp)
         
