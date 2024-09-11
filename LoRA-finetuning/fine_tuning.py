@@ -4,7 +4,7 @@ from tqdm import tqdm
 from torch.utils.data import DataLoader
 from load_data import *
 from load_model import *
-from peft import LoraConfig, get_peft_model
+from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 from transformers import Trainer, TrainingArguments, EarlyStoppingCallback
 
 def fine_tuning():
@@ -34,6 +34,7 @@ def fine_tuning():
         task_type='CAUSAL_LM'
     )
 
+    model = prepare_model_for_kbit_training(model)
     model = get_peft_model(model, lora_config)
     model.to(device)
 
