@@ -15,7 +15,7 @@ def fine_tuning():
     trg_lang = 'en'
     
     # hyper-parameter
-    lr = 5e-5
+    lr = 1e-5
     num_epochs = 3
 
     # check the available device
@@ -61,13 +61,15 @@ def fine_tuning():
     training_args = TrainingArguments(
         output_dir="./results",
         evaluation_strategy="steps",
-        eval_steps=500,
-        per_device_train_batch_size=16,
-        per_device_eval_batch_size=16,
+        eval_steps=100,
+        save_steps=100,
+        per_device_train_batch_size=8,
+        per_device_eval_batch_size=8,
+        gradient_accumulation_steps=4,
         learning_rate=lr,
         num_train_epochs=num_epochs,
         logging_dir="./logs",
-        fp16=False,
+        fp16=True,
         save_total_limit=3,
         load_best_model_at_end=True,
         metric_for_best_model="eval_loss",
