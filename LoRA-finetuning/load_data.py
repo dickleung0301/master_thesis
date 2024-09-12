@@ -66,16 +66,16 @@ def finetuning_preprocess(dataset, key, src_lang, trg_lang, tokenizer): # 'trans
     tokenizer.padding_side = 'right'
 
     # tokenize the data
-    tokenized_inputs = tokenizer(inputs, padding='max_length', truncation=True, max_length=512, return_attention_mask=True)
-    tokenized_targets = tokenizer(targets, padding='max_length', truncation=True, max_length=512)
+    tokenized_inputs = tokenizer(inputs, padding='max_length', truncation=True, max_length=1024, return_attention_mask=True)
+    tokenized_targets = tokenizer(targets, padding='max_length', truncation=True, max_length=1024)
 
     # length of the prefix & the padding
-    labels = torch.full((len(tokenized_targets['input_ids']), 512), -100)
+    labels = torch.full((len(tokenized_targets['input_ids']), 1024), -100)
     for i, (input_ids, target_ids) in enumerate(zip(tokenized_inputs['input_ids'], tokenized_targets['input_ids'])):      
 
         # Find the position of the assistant token
         try:
-            assistant_pos = input_ids.index(tokenizer.encode(assistant)[0])
+            end_of_assistant_pos = len(input_ids) - 1 - input_ids[::-1].index(tokenizer.encode(assistant)[-1])
         except ValueError:
             print(f"Assistant token not found in sample {i}")
             continue
@@ -84,7 +84,7 @@ def finetuning_preprocess(dataset, key, src_lang, trg_lang, tokenizer): # 'trans
         target_length = sum(1 for id in target_ids if id != tokenizer.pad_token_id)
         
         # Assign the target ids to the labels, starting after the assistant token
-        labels[i, assistant_pos + 1 : assistant_pos + 1 + target_length] = torch.tensor(
+        labels[i, end_of_assistant_pos + 1 : end_of_assistant_pos + 1 + target_length] = torch.tensor(
             [id for id in target_ids if id != tokenizer.pad_token_id]
         )
 

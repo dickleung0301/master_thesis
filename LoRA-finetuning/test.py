@@ -24,6 +24,6 @@ tokenizer = AutoTokenizer.from_pretrained('meta-llama/Meta-Llama-3.1-8B', token=
 
 # test create dataloader
 dataset = load_alma('train', 'zh-en')
-inputs_ids, labels_ids = preprocess(dataset, 'translation', 'zh', 'en', tokenizer)
+#inputs_ids, labels_ids = preprocess(dataset, 'translation', 'zh', 'en', tokenizer)
 #dataloader = create_dataloader(dataset=dataset, key='translation', src_lang='zh', trg_lang='en', tokenizer=tokenizer, device=device)
 print(tokenizer.eos_token)
