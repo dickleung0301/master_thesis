@@ -9,7 +9,7 @@ if __name__ == '__main__':
     parser.add_argument('-t', '--trg_lang', type=str, help='target language of the translation direction')
     parser.add_argument('-lr', '--learning_rate', type=float, help='learning rate of the fine-tuning')
     parser.add_argument('-n', '--num_epochs', type=int, help='the number of epochs of the fine-tuning')
-    parser.add_argument('-sd', '--save_dir', type=int, help='the saving directory for model, tokenizer and inference results')
+    parser.add_argument('-sd', '--save_dir', type=str, help='the saving directory for model, tokenizer and inference results')
 
     # get the arguments
     args = parser.parse_args()
