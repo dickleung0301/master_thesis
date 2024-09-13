@@ -33,7 +33,6 @@ def fine_tuning(model_choice, src_lang, trg_lang, dir, learning_rate, num_epochs
     model = prepare_model_for_kbit_training(model)
     model = get_peft_model(model, lora_config)
     model.to(device)
-    model.train()
 
     # load alma
     training_dataset = load_alma(split='train', dir=dir)
