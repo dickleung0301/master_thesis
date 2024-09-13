@@ -50,7 +50,7 @@ def load_wmt22(dir):
 def finetuning_preprocess(dataset, key, src_lang, trg_lang, tokenizer): # 'translation' : Alma, 'direction': wmt22
 
     # promt format & instruction
-    instruction = "Translate Chinese to English: "
+    instruction = "Translate German to English: "
     user = "<|start_header_id|>user<|end_header_id|>\n"
     assistant = "<|start_header_id|>assistant<|end_header_id|>\n"
     end_id = "<|eot_id|>"
@@ -66,11 +66,11 @@ def finetuning_preprocess(dataset, key, src_lang, trg_lang, tokenizer): # 'trans
     tokenizer.padding_side = 'right'
 
     # tokenize the data
-    tokenized_inputs = tokenizer(inputs, padding='max_length', truncation=True, max_length=1024, return_attention_mask=True)
-    tokenized_targets = tokenizer(targets, padding='max_length', truncation=True, max_length=1024)
+    tokenized_inputs = tokenizer(inputs, padding='max_length', truncation=True, max_length=600, return_attention_mask=True)
+    tokenized_targets = tokenizer(targets, padding='max_length', truncation=True, max_length=600)
 
     # length of the prefix & the padding
-    labels = torch.full((len(tokenized_targets['input_ids']), 1024), -100)
+    labels = torch.full((len(tokenized_targets['input_ids']), 600), -100)
     for i, (input_ids, target_ids) in enumerate(zip(tokenized_inputs['input_ids'], tokenized_targets['input_ids'])):      
 
         # Find the position of the assistant token
@@ -97,10 +97,10 @@ def finetuning_preprocess(dataset, key, src_lang, trg_lang, tokenizer): # 'trans
 
     return dataset
 
-def generation_preprocess(dataset, key, src_lang, trg_lang, tokenizer): # 'translation' : Alma, 'direction': wmt22
+def generation_preprocess(dataset, key, src_lang, tokenizer, device): # 'translation' : Alma, 'direction': wmt22
 
     # promt format & instruction
-    instruction = "Translate Chinese to English: "
+    instruction = "Translate German to English: "
     user = "<|start_header_id|>user<|end_header_id|>\n"
     assistant = "<|start_header_id|>assistant<|end_header_id|>\n"
     end_id = "<|eot_id|>"
@@ -115,12 +115,12 @@ def generation_preprocess(dataset, key, src_lang, trg_lang, tokenizer): # 'trans
     tokenizer.padding_side = 'left'
 
     # tokenize the data
-    tokenized_inputs = tokenizer(inputs, padding='max_length', truncation=True, max_length=256, return_attention_mask=True)
+    tokenized_inputs = tokenizer(inputs, padding='max_length', truncation=True, max_length=512, return_attention_mask=True)
 
     # create the dataset
     dataset = GenerationDataset(
-        input_ids = torch.tensor(tokenized_inputs['input_ids']),
-        attention_mask = torch.tensor(tokenized_inputs['attention_mask']),
+        input_ids = torch.tensor(tokenized_inputs['input_ids'].to(device)),
+        attention_mask = torch.tensor(tokenized_inputs['attention_mask'].to(device)),
     )
 
     return dataset
