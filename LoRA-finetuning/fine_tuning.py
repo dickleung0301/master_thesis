@@ -26,7 +26,7 @@ def fine_tuning(model_choice, src_lang, trg_lang, dir, learning_rate, num_epochs
         task_type='CAUSAL_LM'
     )
 
-    print("####################\lora config.\n####################")
+    print("####################\nlora config.\n####################")
     print(lora_config)
 
     # prepare the model for training with quantisation
@@ -49,7 +49,7 @@ def fine_tuning(model_choice, src_lang, trg_lang, dir, learning_rate, num_epochs
         early_stopping_patience=3,
         early_stopping_threshold=0.1
     )
-    print("####################\early stopping config.\n####################")
+    print("####################\nearly stopping config.\n####################")
     print(f"Patience: {early_stopping_callback.early_stopping_patience}")
     print(f"Threshold: {early_stopping_callback.early_stopping_threshold}")
 
@@ -100,7 +100,7 @@ def inference(src_lang, trg_lang, dir, model, tokenizer, device, save_dir):
     test_dataset = load_wmt22(dir=dir)
 
     # preprocess the dataset
-    processed_test_dataset = generation_preprocess(dataset=test_dataset, key=dir, src_lang=src_lang, trg_lang=trg_lang,
+    processed_test_dataset = generation_preprocess(dataset=test_dataset, key=dir, src_lang=src_lang,
                                                     tokenizer=tokenizer, device=device)
 
 

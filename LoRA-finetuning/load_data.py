@@ -115,7 +115,7 @@ def generation_preprocess(dataset, key, src_lang, tokenizer, device): # 'transla
     tokenizer.padding_side = 'left'
 
     # tokenize the data
-    tokenized_inputs = tokenizer(inputs, padding='max_length', truncation=True, max_length=512, return_attention_mask=True)
+    tokenized_inputs = tokenizer(inputs, padding='max_length', truncation=True, max_length=300, return_attention_mask=True)
 
     # create the dataset
     dataset = GenerationDataset(
