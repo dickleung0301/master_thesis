@@ -59,7 +59,7 @@ def finetuning_preprocess(dataset, key, src_lang, trg_lang, tokenizer): # 'trans
 
     # instantiate the list of inputs & targets
     inputs = [prefix + sample[key][src_lang] + end_id + assistant for sample in dataset]
-    targets = [sample[key][trg_lang] for sample in dataset]
+    targets = [sample[key][trg_lang] + end_id for sample in dataset]
 
     # set the pad token of llama & padding side
     tokenizer.pad_token_id = tokenizer.eos_token_id
