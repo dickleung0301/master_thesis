@@ -1,6 +1,8 @@
 import torch
 import pandas as pd
 from tqdm import tqdm
+from dotenv import load_dotenv
+from huggingface_hub import login
 from torch.utils.data import DataLoader
 from load_data import *
 from load_model import *
@@ -94,7 +96,18 @@ def fine_tuning(model_choice, src_lang, trg_lang, dir, learning_rate, num_epochs
 
     return model, tokenizer
 
-def inference(src_lang, trg_lang, dir, model, tokenizer, device, save_dir):
+def inference(src_lang, dir, device, save_dir):
+
+    # load the access token from .env
+    load_dotenv()
+    token = os.getenv('HUGGINGFACE_TOKEN')
+
+    # login huggingface_hub
+    login(token=token)
+
+    # load the model from the save directory 
+    model = AutoModelForCausalLM.from_pretrained(save_dir, load_in_4bit=True, device_map='auto', token=token)
+    tokenizer = AutoTokenizer.from_pretrained(save_dir, token=token)
 
     # load wmt dataset
     test_dataset = load_wmt22(dir=dir)

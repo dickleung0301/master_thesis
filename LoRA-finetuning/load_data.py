@@ -115,12 +115,12 @@ def generation_preprocess(dataset, key, src_lang, tokenizer, device): # 'transla
     tokenizer.padding_side = 'left'
 
     # tokenize the data
-    tokenized_inputs = tokenizer(inputs, padding='max_length', truncation=True, max_length=300, return_attention_mask=True)
+    tokenized_inputs = tokenizer(inputs, padding='max_length', truncation=True, max_length=512, return_attention_mask=True)
 
     # create the dataset
     dataset = GenerationDataset(
-        input_ids = torch.tensor(tokenized_inputs['input_ids'].to(device)),
-        attention_mask = torch.tensor(tokenized_inputs['attention_mask'].to(device)),
+        input_ids = torch.tensor(tokenized_inputs['input_ids']).to(device),
+        attention_mask = torch.tensor(tokenized_inputs['attention_mask']).to(device),
     )
 
     return dataset
