@@ -1,13 +1,13 @@
-from zero_shot_few_shot.load_dataset import *
-from zero_shot_few_shot.model import *
-from zero_shot_few_shot.exception import *
-from zero_shot_few_shot.helper_function import *
+from load_dataset import *
+from model import *
+from exception import *
+from helper_function import *
 import torch
 from tqdm import tqdm
 import json
 import os
 
-def inference(inference_type, num_example=None, src_lang='eng_Latn', trg_lang = 'deu_Latn', model_idx = '6'):
+def inference(inference_type, num_example, src_lang, trg_lang, model_idx):
     # load the config file
     with open('config.json', 'r') as f:
         config = json.load(f)

@@ -1,5 +1,5 @@
 import json
-from zero_shot_few_shot.comet import download_model, load_from_checkpoint
+from comet import download_model, load_from_checkpoint
 
 file_dir = './zero_shot_result/'
 source_lang = 'eng_Latn'

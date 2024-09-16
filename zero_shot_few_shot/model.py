@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 import transformers
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from huggingface_hub import login
-from zero_shot_few_shot.exception import *
+from exception import *
 
 def model_factory(model_name):
     try:

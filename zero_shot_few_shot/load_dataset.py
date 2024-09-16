@@ -2,7 +2,7 @@ import numpy as np
 from helper_function import apply_chat_template, apply_chat_in_context
 from datasets import load_dataset
 from torch.utils.data import DataLoader, TensorDataset
-from zero_shot_few_shot.exception import *
+from exception import *
 
 # load the source & target language
 def load_flores200(split, source_lang, target_lang, prefix_L1, prefix_L2):
