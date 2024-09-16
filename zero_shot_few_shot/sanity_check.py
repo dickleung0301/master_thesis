@@ -1,7 +1,7 @@
-from load_dataset import *
-from model import *
-from exception import *
-from helper_function import *
+from zero_shot_few_shot.load_dataset import *
+from zero_shot_few_shot.model import *
+from zero_shot_few_shot.exception import *
+from zero_shot_few_shot.helper_function import *
 import torch
 from tqdm import tqdm
 import json
@@ -76,7 +76,7 @@ for iter in range(iter_sanity_check):
         source_sentence = tokenizer.decode(input_ids[0], skip_special_tokens=True)
         target_sentence = tokenizer.decode(target_ids[0], skip_special_tokens=True)
         translated_sentence = tokenizer.decode(translation[0], skip_special_tokens=True)
-        translated_sentence = strip_llama_output(translated_sentence)
+        translated_sentence = strip_zero_shot(translated_sentence)
 
         print("The original source sentence:")
         print(source_sentence)

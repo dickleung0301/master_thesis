@@ -1,7 +1,7 @@
-from load_dataset import *
-from model import *
-from exception import *
-from helper_function import *
+from zero_shot_few_shot.load_dataset import *
+from zero_shot_few_shot.model import *
+from zero_shot_few_shot.exception import *
+from zero_shot_few_shot.helper_function import *
 import torch
 from tqdm import tqdm
 from torch.optim import AdamW

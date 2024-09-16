@@ -1,60 +1,24 @@
 import numpy as np
+from helper_function import apply_chat_template, apply_chat_in_context
 from datasets import load_dataset
 from torch.utils.data import DataLoader, TensorDataset
-from exception import *
+from zero_shot_few_shot.exception import *
 
 # load the source & target language
 def load_flores200(split, source_lang, target_lang, prefix_L1, prefix_L2):
 
     try:
         flores200_src = load_dataset('facebook/flores', source_lang)[split]
-        temp = "<|begin_of_text|>\n<|start_header_id|>system<|end_header_id|>\nYou are a helpful AI assistant for translations\n<|eot_id|>\n<|start_header_id|>user<|end_header_id|>\n"
-        temp2 = '\n' + '<|start_header_id|>assistant<|end_header_id|>'
         data = {}
         data['id'] = flores200_src['id']
         data['src'] = flores200_src['sentence']
-        data[source_lang] = [temp + prefix_L1 + x + ' = ' + prefix_L2 + temp2 for x in flores200_src['sentence']]
+        data[source_lang] = [apply_chat_template(prefix_L1, prefix_L2, x) for x in flores200_src['sentence']]
         data[target_lang] = load_dataset('facebook/flores', target_lang)[split]['sentence']
 
         return data
 
     except Exception as e:
         raise DataLoadingError(f"There is something wrong in loading flores-200: {e}")
-
-# load the source & target language for few-shot learning
-def load_flores200_few_shot(split, source_lang, target_lang, prefix_L1, prefix_L2, num_samples):
-
-    try:
-        # load the source lang & target lang
-        flores200_src = load_dataset('facebook/flores', source_lang)[split]
-        flores200_trg = load_dataset('facebook/flores', target_lang)[split]
-
-        # sample the examples for few-shot learning
-        total_num_sample = len(flores200_src)
-        example_idx = np.random.randint(low=0, high=total_num_sample, size=num_samples)
-
-        # constructing the dictionary for few-shot learning
-        data = {
-            'id': [],
-            'src': [],
-            source_lang: [],
-            target_lang: [],
-        }
-
-        # the prompt format of llama 3
-        temp = "<|begin_of_text|>\n<|start_header_id|>system<|end_header_id|>\nYou are a helpful AI assistant for translations\n<|eot_id|>\n<|start_header_id|>user<|end_header_id|>\n"
-        temp2 = '\n' + '<|start_header_id|>assistant<|end_header_id|>'
-
-        for idx in example_idx:
-            data['id'].append(flores200_src['id'][idx])
-            data['src'].append(flores200_src['sentence'][idx])
-            data[source_lang].append(temp + prefix_L1 + flores200_src['sentence'][idx] + ' = ' + prefix_L2 + temp2)
-            data[target_lang].append(flores200_trg['sentence'][idx])
-
-        return data 
-
-    except Exception as e:
-        raise DataLoadingError(f"There is something wrong in loading flores-200 for few-shot: {e}")
 
 def load_flores200_few_shot_in_context(split, example_split, source_lang, target_lang, prefix_L1, prefix_L2, num_example):
 
@@ -82,15 +46,12 @@ def load_flores200_few_shot_in_context(split, example_split, source_lang, target
 
         for i in range(len(flores200_src)):
             chosen_examples = np.random.choice(example_idx, size=num_example, replace=False)
-            user = "<|start_header_id|>user<|end_header_id|>\n"
-            assistant = "<|start_header_id|>assistant<|end_header_id|>\n"
-            end_id = "<|eot_id|>"
-            temp = "<|begin_of_text|>\n<|start_header_id|>system<|end_header_id|>\nYou are a helpful AI assistant for translations\n<|eot_id|>\n"
+            input = "<|begin_of_text|>\n<|start_header_id|>system<|end_header_id|>\nYou are a helpful AI assistant for translations\n<|eot_id|>\n"
             for j in chosen_examples:
-                temp += user + prefix_L1 + example_src['sentence'][j] + '\n' + end_id + assistant + prefix_L2 + example_trg['sentence'][j] + '\n' + end_id
-            temp += user + prefix_L1 + flores200_src['sentence'][i] + '\n' + end_id + assistant
+                apply_chat_in_context(input, prefix_L1, prefix_L2, example_src['sentence'][j], trg_lang = example_trg['sentence'][j])
+            apply_chat_in_context(input, prefix_L1, prefix_L2, flores200_src['sentence'][i])
             
-            data[source_lang].append(temp)
+            data[source_lang].append(input)
         
         return data
 
@@ -103,12 +64,10 @@ def load_flores200_sanity_check(split, source_lang, target_lang, prefix_L1, pref
     try:
         flores200_src = load_dataset('facebook/flores', source_lang)[split]
         flores200_trg = load_dataset('facebook/flores', target_lang)[split]
-        temp = "<|begin_of_text|>\n<|start_header_id|>system<|end_header_id|>\nYou are a helpful AI assistant for translations\n<|eot_id|>\n<|start_header_id|>user<|end_header_id|>\n"
-        temp2 = '\n' + '<|start_header_id|>assistant<|end_header_id|>'
         data = {}
         data['id'] = [flores200_src[index]['id']]
         data['src'] = [flores200_src[index]['sentence']]
-        data[source_lang] = [temp + prefix_L1 + flores200_src[index]['sentence'] + ' = ' + prefix_L2 + temp2]
+        data[source_lang] = [apply_chat_template(prefix_L1, prefix_L2, flores200_src[index]['sentence'])]
         data[target_lang] = [flores200_trg[index]['sentence']]
 
         return data        
