@@ -130,8 +130,8 @@ def inference(src_lang, dir, device, save_dir):
 
         # inference
         with torch.no_grad():
-            outputs = model.generate(input_ids=input_ids, attention_mask=attention_mask, max_new_tokens=100,
-                                    repetition_penalty=1.3, do_sample=True, top_k=50, top_p=0.95)
+            outputs = model.generate(input_ids=input_ids, attention_mask=attention_mask, max_new_tokens=50,
+                                    do_sample=False, temperature=1.0, top_p=1.0)
 
         # decode the outputs
         decoded_predictions = tokenizer.batch_decode(outputs, skip_special_tokens=True)
