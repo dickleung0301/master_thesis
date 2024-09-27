@@ -17,9 +17,9 @@ from peft import LoraConfig, get_peft_model
 from accelerate import Accelerator, infer_auto_device_map, dispatch_model
 from accelerate.utils import set_seed
 
-def fine_tuning(model_choice, src_lang, trg_lang, dir, batch_size, learning_rate, num_epochs, masking, save_dir):
+def fine_tuning(model_choice, src_lang, trg_lang, dir, mini_batch_size, grad_accum, learning_rate, num_epochs, masking, save_dir):
 
-    accelerator = Accelerator()
+    accelerator = Accelerator(gradient_accumulation_steps=grad_accum)
     set_seed(42)
 
     # load model and tokenizer
@@ -47,8 +47,8 @@ def fine_tuning(model_choice, src_lang, trg_lang, dir, batch_size, learning_rate
 
     max_memory = {
         0: "12GiB",  # cuda:0 -> physical GPU 0
-        1: "15GiB",  # cuda:1 -> physical GPU 1
-        2: "15GiB",  # cuda:2 -> physical GPU 3
+        1: "24GiB",  # cuda:1 -> physical GPU 1
+        2: "24GiB",  # cuda:2 -> physical GPU 3
         "cpu": "30GiB"
     }
 
@@ -80,15 +80,15 @@ def fine_tuning(model_choice, src_lang, trg_lang, dir, batch_size, learning_rate
     # fit the data into a dataloader
     train_loader = DataLoader(
         processed_training_dataset,
-        batch_size=batch_size,
+        batch_size=mini_batch_size,
         shuffle=True,
         collate_fn=None
     )
 
     eval_loader = DataLoader(
         processed_eval_dataset,
-        batch_size=batch_size,
-        shuffle=True,
+        batch_size=mini_batch_size,
+        shuffle=False,
         collate_fn=None
     )
 
@@ -109,7 +109,8 @@ def fine_tuning(model_choice, src_lang, trg_lang, dir, batch_size, learning_rate
     print(f"Threshold: {early_stop_threshold}")
 
     print("####################\ntraining_args config.\n####################")
-    print(f"Batch Size: {batch_size}")
+    print(f"Mini Batch Size: {mini_batch_size}")
+    print(f"Gradient Accumulation: {grad_accum}")
     print(f"LR: {learning_rate}")
     print(f"# Epochs:{num_epochs}")
 
@@ -121,21 +122,15 @@ def fine_tuning(model_choice, src_lang, trg_lang, dir, batch_size, learning_rate
         
         for step, batch in enumerate(progress_bar):
             # No need to move data; Accelerate handles it
-            outputs = model(**batch)
-            loss = outputs.loss
-            total_loss += loss.item()
-            
-            accelerator.backward(loss)
-            
-            optimizer.step()
-            optimizer.zero_grad()
-            
-            # Log loss
-            if step % 10 == 0:
-                current_loss = total_loss / (step + 1)
-                progress_bar.set_postfix({'training_loss': current_loss})
+            with accelerator.accumulate(model):
+                outputs = model(**batch)
+                loss = outputs.loss
+                total_loss += loss.item()
+                accelerator.backward(loss)
+                optimizer.step()
+                optimizer.zero_grad()
 
-            if step % 1000 == 0:
+            if (step + 1) % 1000 == 0:
                 # Evaluate the model on the validation dataset
                 model.eval()
                 eval_loss = 0
@@ -158,7 +153,7 @@ def fine_tuning(model_choice, src_lang, trg_lang, dir, batch_size, learning_rate
                         print("Early stopping triggered.")
                         early_stop = True
                         break 
-        
+
         if early_stop:
             break
         
@@ -184,15 +179,15 @@ def inference(src_lang, trg_lang, dir, save_dir):
     # login huggingface_hub
     login(token=token)
 
-    max_memory = {
-        0: "12GiB",  # cuda:0 -> physical GPU 0
-        1: "15GiB",  # cuda:1 -> physical GPU 1
-        2: "15GiB",  # cuda:2 -> physical GPU 3
-        "cpu": "30GiB"
-    }
+    #max_memory = {
+    #    0: "24GiB",  # cuda:0 -> physical GPU 0
+    #    1: "24GiB",  # cuda:1 -> physical GPU 1
+    #    2: "24GiB",  # cuda:2 -> physical GPU 3
+    #    "cpu": "30GiB"
+    #}
 
     # load the model from the save directory 
-    model = AutoModelForCausalLM.from_pretrained(save_dir, device_map='auto', max_memory=max_memory, token=token)
+    model = AutoModelForCausalLM.from_pretrained(save_dir, device_map='auto', token=token)
     tokenizer = AutoTokenizer.from_pretrained(save_dir, token=token)
 
     # get the device of the embedding layer
