@@ -46,7 +46,7 @@ def fine_tuning(model_choice, src_lang, trg_lang, dir, mini_batch_size, grad_acc
     model = get_peft_model(model, lora_config)
 
     max_memory = {
-        0: "12GiB",  # cuda:0 -> physical GPU 0
+        0: "8GiB",  # cuda:0 -> physical GPU 0
         1: "24GiB",  # cuda:1 -> physical GPU 1
         2: "24GiB",  # cuda:2 -> physical GPU 3
         "cpu": "30GiB"
@@ -111,6 +111,7 @@ def fine_tuning(model_choice, src_lang, trg_lang, dir, mini_batch_size, grad_acc
     print("####################\ntraining_args config.\n####################")
     print(f"Mini Batch Size: {mini_batch_size}")
     print(f"Gradient Accumulation: {grad_accum}")
+    print(f"Effective Batch Size: {mini_batch_size * grad_accum}")
     print(f"LR: {learning_rate}")
     print(f"# Epochs:{num_epochs}")
 
@@ -130,7 +131,7 @@ def fine_tuning(model_choice, src_lang, trg_lang, dir, mini_batch_size, grad_acc
                 optimizer.step()
                 optimizer.zero_grad()
 
-            if (step + 1) % 1000 == 0:
+            if (step + 1) % (grad_accum * 20) == 0:
                 # Evaluate the model on the validation dataset
                 model.eval()
                 eval_loss = 0
@@ -140,7 +141,7 @@ def fine_tuning(model_choice, src_lang, trg_lang, dir, mini_batch_size, grad_acc
                         loss = outputs.loss
                         eval_loss += loss.item()
                 avg_eval_loss = eval_loss / len(eval_loader)
-                print(f"Epoch {epoch+1} Validation Loss: {avg_eval_loss}")
+                print(f"Effective Batch {(step + 1) / (grad_accum)} Validation Loss: {avg_eval_loss}")
                 model.train()
                 
                 # Early Stopping Check
