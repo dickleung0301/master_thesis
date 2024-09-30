@@ -1,7 +1,7 @@
 import argparse
 from inference import *
 
-if __name__ == "main":
+if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     # Argument for inference type

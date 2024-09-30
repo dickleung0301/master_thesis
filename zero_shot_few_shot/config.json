@@ -10,7 +10,10 @@
         "gla_Latn": "Scottish Gaelic: ",
         "ltz_Latn": "Luxembourgish: ",
         "epo_Latn": "Esperanto: ",
-        "spa_Latn": "Spanish: "
+        "spa_Latn": "Spanish: ",
+        "zho_Hant": "Traditional Chinese: ",
+        "jpn_Jpan": "Japanese: ",
+        "kor_Hang": "Korean: "
     },
 
     "model": {

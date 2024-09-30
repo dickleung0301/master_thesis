@@ -1,3 +1,7 @@
+import os
+
+# setting the visible device
+os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,3"
 import numpy as np
 from helper_function import apply_chat_template, apply_chat_in_context
 from datasets import load_dataset

@@ -2,6 +2,10 @@ from load_dataset import *
 from model import *
 from exception import *
 from helper_function import *
+import os
+
+# setting the visible device
+os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,3"
 import torch
 from tqdm import tqdm
 import json
@@ -16,9 +20,6 @@ def inference(inference_type, num_example, src_lang, trg_lang, model_idx):
     prefix = config['prefix']
     model = config['model']
 
-    # define the device
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
     # state the parameters
     source_lang = src_lang
     target_lang = trg_lang
@@ -30,14 +31,14 @@ def inference(inference_type, num_example, src_lang, trg_lang, model_idx):
     MAX_LEN_OUTPUT = 128
 
     if inference_type == "few_shot":
-        MAX_LEN = 1024
+        MAX_LEN = 800
 
-    # get the current working directory
-    cwd = os.getcwd()
+    # saving dir
+    dir = '/export/data2/yleung'
     if inference_type == 'zero_shot':
-        save_directory = cwd + '/zero_shot_result'
+        save_directory = dir + '/zero_shot_result'
     elif inference_type == 'few_shot':
-        save_directory = cwd + '/few_shot_in_context_result'
+        save_directory = dir + '/few_shot_in_context_result'
 
     # the corpus for translation and target sentence, and the list for comet evaluation
     translations = ''
@@ -47,6 +48,7 @@ def inference(inference_type, num_example, src_lang, trg_lang, model_idx):
 
     # get the pretrained model & tokenizer
     model, tokenizer = model_factory(model_name)
+    first_device = next(model.parameters()).device
 
     if model_name == 'meta-llama/Llama-2-7b-chat-hf' or model_name == 'meta-llama/Meta-Llama-3.1-8B-Instruct' or model_name == "meta-llama/Meta-Llama-3.1-8B":
         tokenizer.pad_token = tokenizer.bos_token
@@ -68,8 +70,8 @@ def inference(inference_type, num_example, src_lang, trg_lang, model_idx):
 
 
     # Create the dataloader
-    dataloader = create_dataloader(torch.tensor(tokenized_flores200['input_ids']).to(device),
-                                    attention_mask.to(device),
+    dataloader = create_dataloader(torch.tensor(tokenized_flores200['input_ids']).to(first_device),
+                                    attention_mask.to(first_device),
                                     torch.tensor(tokenized_flores200['target_ids']),
                                     torch.tensor(tokenized_flores200['src_ids']),
                                     batch_size=32)
