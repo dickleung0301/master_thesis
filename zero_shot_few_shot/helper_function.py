@@ -13,8 +13,9 @@ def strip_zero_shot(generation):
 
 # a function to post-process the generation of in-context learning for llama
 def strip_in_context(generation, prefix_L2):
-    phase_to_strip = prefix_L2
+    phase_to_strip = 'assistant'
     striped_generation = generation.split(phase_to_strip)[-1]
+    striped_generation = striped_generation.split(': ')[-1]
     striped_generation = striped_generation.strip()
 
     return striped_generation
