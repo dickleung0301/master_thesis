@@ -1,0 +1,6 @@
+{
+    "instruct": {
+        "de-en": "Translate German to English: ",
+        "zh-en": "Translate Chinese to English: "
+    }
+}

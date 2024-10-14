@@ -1,7 +1,7 @@
 import os
 
 # setting the visible device
-os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,3"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0,1"
 os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'max_split_size_mb:32'
 
 import torch
@@ -9,7 +9,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 from dotenv import load_dotenv
 from huggingface_hub import login
 
-def model_factory(model_choice = 1):
+def model_factory(model_choice=1, device_map='cpu'):
     # load the access token from .env
     load_dotenv()
     token = os.getenv('HUGGINGFACE_TOKEN')
@@ -20,7 +20,7 @@ def model_factory(model_choice = 1):
     if model_choice == 1:
         model = AutoModelForCausalLM.from_pretrained('meta-llama/Meta-Llama-3.1-8B',
                                                     cache_dir="/export/data2/yleung/model_cache",
-                                                    device_map="cpu",
+                                                    device_map=device_map,
                                                     torch_dtype=torch.float16,
                                                     low_cpu_mem_usage=True,
                                                     token=token)
@@ -31,7 +31,7 @@ def model_factory(model_choice = 1):
     if model_choice == 2:
         model = AutoModelForCausalLM.from_pretrained('meta-llama/Meta-Llama-3.1-8B-Instruct',
                                                     cache_dir="/export/data2/yleung/model_cache",
-                                                    device_map="cpu",
+                                                    device_map=device_map,
                                                     torch_dtype=torch.float16,
                                                     low_cpu_mem_usage=True,
                                                     token=token)

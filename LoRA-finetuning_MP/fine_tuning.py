@@ -1,7 +1,7 @@
 import os
 
 # setting the visible device
-os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,3"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0,1"
 os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'max_split_size_mb:32'
 
 import torch
@@ -48,7 +48,7 @@ def fine_tuning(model_choice, src_lang, trg_lang, dir, mini_batch_size, grad_acc
     max_memory = {
         0: "8GiB",  # cuda:0 -> physical GPU 0
         1: "24GiB",  # cuda:1 -> physical GPU 1
-        2: "24GiB",  # cuda:2 -> physical GPU 3
+        # 2: "24GiB",  # cuda:2 -> physical GPU 3
         "cpu": "30GiB"
     }
 
@@ -73,9 +73,9 @@ def fine_tuning(model_choice, src_lang, trg_lang, dir, mini_batch_size, grad_acc
 
     # preprocess the dataset
     processed_training_dataset = finetuning_preprocess(dataset=training_dataset, key='translation', src_lang=src_lang, trg_lang=trg_lang,
-                                                    tokenizer=tokenizer, masking=masking)
+                                                    trans_dir=dir, tokenizer=tokenizer, masking=masking)
     processed_eval_dataset = finetuning_preprocess(dataset=eval_dataset, key='translation', src_lang=src_lang, trg_lang=trg_lang,
-                                                    tokenizer=tokenizer, masking=masking)
+                                                    trans_dir=dir, tokenizer=tokenizer, masking=masking)
 
     # fit the data into a dataloader
     train_loader = DataLoader(
@@ -131,6 +131,14 @@ def fine_tuning(model_choice, src_lang, trg_lang, dir, mini_batch_size, grad_acc
                 optimizer.step()
                 optimizer.zero_grad()
 
+            # logging allocated & reserved memory for devices
+            if step % 100 == 0:
+                print("####################\nmemory allocation\n####################")
+                for i in range(torch.cuda.device_count()):
+                    allocated_memory = torch.cuda.memory_allocated(i) / (1024 ** 3)
+                    reserved_memory = torch.cuda.memory_reserved(i) / (1024 ** 3)
+                    print(f"GPU {i}: Allocated Memory: {allocated_memory:.2f} GB, Reserved Memory: {reserved_memory:.2f} GB")
+
             if (step + 1) % (grad_accum * 20) == 0:
                 # Evaluate the model on the validation dataset
                 model.eval()
@@ -148,6 +156,14 @@ def fine_tuning(model_choice, src_lang, trg_lang, dir, mini_batch_size, grad_acc
                 if avg_eval_loss < best_eval_loss - early_stop_threshold:  # Threshold for improvement
                     best_eval_loss = avg_eval_loss
                     num_bad_steps = 0
+
+                    # save the pretrained model & the tokenizer
+                    accelerator.wait_for_everyone()
+                    if accelerator.is_main_process:
+                        unwrapped_model = accelerator.unwrap_model(model)
+                        unwrapped_model.save_pretrained(save_dir, save_function=accelerator.save)
+                        tokenizer.save_pretrained(save_dir)
+
                 else:
                     num_bad_steps += 1
                     if num_bad_steps >= patience:
@@ -162,16 +178,9 @@ def fine_tuning(model_choice, src_lang, trg_lang, dir, mini_batch_size, grad_acc
         avg_train_loss = total_loss / len(train_loader)
         print(f"Epoch {epoch+1} Training Loss: {avg_train_loss}")
 
-    # save the pretrained model & the tokenizer
-    accelerator.wait_for_everyone()
-    if accelerator.is_main_process:
-        unwrapped_model = accelerator.unwrap_model(model)
-        unwrapped_model.save_pretrained(save_dir, save_function=accelerator.save)
-        tokenizer.save_pretrained(save_dir)
-
     return model, tokenizer
 
-def inference(src_lang, trg_lang, dir, save_dir):
+def inference(src_lang, trg_lang, dir, save_dir, right_padding, baseline, model_choice):
 
     # load the access token from .env
     load_dotenv()
@@ -188,8 +197,11 @@ def inference(src_lang, trg_lang, dir, save_dir):
     #}
 
     # load the model from the save directory 
-    model = AutoModelForCausalLM.from_pretrained(save_dir, device_map='auto', token=token)
-    tokenizer = AutoTokenizer.from_pretrained(save_dir, token=token)
+    if not baseline:
+        model = AutoModelForCausalLM.from_pretrained(save_dir, device_map='auto', token=token)
+        tokenizer = AutoTokenizer.from_pretrained(save_dir, token=token)
+    else:
+        model, tokenizer = model_factory(model_choice=model_choice, device_map='auto')
 
     # get the device of the embedding layer
     first_device = next(model.parameters()).device
@@ -198,8 +210,8 @@ def inference(src_lang, trg_lang, dir, save_dir):
     test_dataset = load_wmt22(dir=dir)
 
     # preprocess the dataset
-    processed_test_dataset = generation_preprocess(dataset=test_dataset, key=dir, src_lang=src_lang,
-                                                    trg_lang=trg_lang, tokenizer=tokenizer)
+    processed_test_dataset = generation_preprocess(dataset=test_dataset, key=dir, src_lang=src_lang, trg_lang=trg_lang,
+                                                 trans_dir=dir, tokenizer=tokenizer, right_padding=right_padding)
 
 
     # pack the dataset into dataloader
@@ -244,4 +256,4 @@ def inference(src_lang, trg_lang, dir, save_dir):
         'predictions': predictions_list
     }
     df = pd.DataFrame(materialisation)
-    df.to_csv(save_dir + 'predictions.csv', index=False)
+    df.to_csv(save_dir + '/predictions.csv', index=False)
