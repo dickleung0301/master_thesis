@@ -1,0 +1,1512 @@
+####################
+fine-tuning the model
+####################
+The token has not been saved to the git credentials helper. Pass `add_to_git_credential=True` in this function directly or `--add-to-git-credential` if using via `huggingface-cli` if you want to set the git credential as well.
+Token is valid (permission: write).
+Your token has been saved to /home/yleung/.cache/huggingface/token
+Login successful
+####################
+model info.
+####################
+LlamaForCausalLM(
+  (model): LlamaModel(
+    (embed_tokens): Embedding(128256, 4096)
+    (layers): ModuleList(
+      (0): LlamaDecoderLayer(
+        (self_attn): LlamaAttention(
+          (q_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (k_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (v_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (o_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (rotary_emb): LlamaRotaryEmbedding()
+        )
+        (mlp): LlamaMLP(
+          (gate_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (up_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (down_proj): Linear(in_features=14336, out_features=4096, bias=False)
+          (act_fn): SiLU()
+        )
+        (input_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+        (post_attention_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+      )
+      (1): LlamaDecoderLayer(
+        (self_attn): LlamaAttention(
+          (q_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (k_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (v_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (o_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (rotary_emb): LlamaRotaryEmbedding()
+        )
+        (mlp): LlamaMLP(
+          (gate_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (up_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (down_proj): Linear(in_features=14336, out_features=4096, bias=False)
+          (act_fn): SiLU()
+        )
+        (input_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+        (post_attention_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+      )
+      (2): LlamaDecoderLayer(
+        (self_attn): LlamaAttention(
+          (q_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (k_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (v_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (o_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (rotary_emb): LlamaRotaryEmbedding()
+        )
+        (mlp): LlamaMLP(
+          (gate_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (up_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (down_proj): Linear(in_features=14336, out_features=4096, bias=False)
+          (act_fn): SiLU()
+        )
+        (input_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+        (post_attention_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+      )
+      (3): LlamaDecoderLayer(
+        (self_attn): LlamaAttention(
+          (q_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (k_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (v_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (o_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (rotary_emb): LlamaRotaryEmbedding()
+        )
+        (mlp): LlamaMLP(
+          (gate_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (up_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (down_proj): Linear(in_features=14336, out_features=4096, bias=False)
+          (act_fn): SiLU()
+        )
+        (input_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+        (post_attention_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+      )
+      (4): LlamaDecoderLayer(
+        (self_attn): LlamaAttention(
+          (q_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (k_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (v_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (o_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (rotary_emb): LlamaRotaryEmbedding()
+        )
+        (mlp): LlamaMLP(
+          (gate_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (up_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (down_proj): Linear(in_features=14336, out_features=4096, bias=False)
+          (act_fn): SiLU()
+        )
+        (input_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+        (post_attention_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+      )
+      (5): LlamaDecoderLayer(
+        (self_attn): LlamaAttention(
+          (q_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (k_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (v_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (o_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (rotary_emb): LlamaRotaryEmbedding()
+        )
+        (mlp): LlamaMLP(
+          (gate_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (up_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (down_proj): Linear(in_features=14336, out_features=4096, bias=False)
+          (act_fn): SiLU()
+        )
+        (input_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+        (post_attention_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+      )
+      (6): LlamaDecoderLayer(
+        (self_attn): LlamaAttention(
+          (q_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (k_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (v_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (o_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (rotary_emb): LlamaRotaryEmbedding()
+        )
+        (mlp): LlamaMLP(
+          (gate_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (up_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (down_proj): Linear(in_features=14336, out_features=4096, bias=False)
+          (act_fn): SiLU()
+        )
+        (input_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+        (post_attention_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+      )
+      (7): LlamaDecoderLayer(
+        (self_attn): LlamaAttention(
+          (q_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (k_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (v_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (o_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (rotary_emb): LlamaRotaryEmbedding()
+        )
+        (mlp): LlamaMLP(
+          (gate_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (up_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (down_proj): Linear(in_features=14336, out_features=4096, bias=False)
+          (act_fn): SiLU()
+        )
+        (input_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+        (post_attention_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+      )
+      (8): LlamaDecoderLayer(
+        (self_attn): LlamaAttention(
+          (q_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (k_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (v_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (o_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (rotary_emb): LlamaRotaryEmbedding()
+        )
+        (mlp): LlamaMLP(
+          (gate_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (up_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (down_proj): Linear(in_features=14336, out_features=4096, bias=False)
+          (act_fn): SiLU()
+        )
+        (input_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+        (post_attention_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+      )
+      (9): LlamaDecoderLayer(
+        (self_attn): LlamaAttention(
+          (q_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (k_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (v_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (o_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (rotary_emb): LlamaRotaryEmbedding()
+        )
+        (mlp): LlamaMLP(
+          (gate_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (up_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (down_proj): Linear(in_features=14336, out_features=4096, bias=False)
+          (act_fn): SiLU()
+        )
+        (input_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+        (post_attention_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+      )
+      (10): LlamaDecoderLayer(
+        (self_attn): LlamaAttention(
+          (q_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (k_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (v_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (o_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (rotary_emb): LlamaRotaryEmbedding()
+        )
+        (mlp): LlamaMLP(
+          (gate_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (up_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (down_proj): Linear(in_features=14336, out_features=4096, bias=False)
+          (act_fn): SiLU()
+        )
+        (input_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+        (post_attention_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+      )
+      (11): LlamaDecoderLayer(
+        (self_attn): LlamaAttention(
+          (q_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (k_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (v_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (o_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (rotary_emb): LlamaRotaryEmbedding()
+        )
+        (mlp): LlamaMLP(
+          (gate_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (up_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (down_proj): Linear(in_features=14336, out_features=4096, bias=False)
+          (act_fn): SiLU()
+        )
+        (input_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+        (post_attention_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+      )
+      (12): LlamaDecoderLayer(
+        (self_attn): LlamaAttention(
+          (q_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (k_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (v_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (o_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (rotary_emb): LlamaRotaryEmbedding()
+        )
+        (mlp): LlamaMLP(
+          (gate_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (up_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (down_proj): Linear(in_features=14336, out_features=4096, bias=False)
+          (act_fn): SiLU()
+        )
+        (input_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+        (post_attention_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+      )
+      (13): LlamaDecoderLayer(
+        (self_attn): LlamaAttention(
+          (q_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (k_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (v_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (o_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (rotary_emb): LlamaRotaryEmbedding()
+        )
+        (mlp): LlamaMLP(
+          (gate_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (up_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (down_proj): Linear(in_features=14336, out_features=4096, bias=False)
+          (act_fn): SiLU()
+        )
+        (input_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+        (post_attention_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+      )
+      (14): LlamaDecoderLayer(
+        (self_attn): LlamaAttention(
+          (q_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (k_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (v_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (o_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (rotary_emb): LlamaRotaryEmbedding()
+        )
+        (mlp): LlamaMLP(
+          (gate_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (up_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (down_proj): Linear(in_features=14336, out_features=4096, bias=False)
+          (act_fn): SiLU()
+        )
+        (input_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+        (post_attention_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+      )
+      (15): LlamaDecoderLayer(
+        (self_attn): LlamaAttention(
+          (q_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (k_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (v_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (o_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (rotary_emb): LlamaRotaryEmbedding()
+        )
+        (mlp): LlamaMLP(
+          (gate_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (up_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (down_proj): Linear(in_features=14336, out_features=4096, bias=False)
+          (act_fn): SiLU()
+        )
+        (input_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+        (post_attention_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+      )
+      (16): LlamaDecoderLayer(
+        (self_attn): LlamaAttention(
+          (q_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (k_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (v_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (o_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (rotary_emb): LlamaRotaryEmbedding()
+        )
+        (mlp): LlamaMLP(
+          (gate_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (up_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (down_proj): Linear(in_features=14336, out_features=4096, bias=False)
+          (act_fn): SiLU()
+        )
+        (input_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+        (post_attention_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+      )
+      (17): LlamaDecoderLayer(
+        (self_attn): LlamaAttention(
+          (q_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (k_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (v_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (o_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (rotary_emb): LlamaRotaryEmbedding()
+        )
+        (mlp): LlamaMLP(
+          (gate_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (up_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (down_proj): Linear(in_features=14336, out_features=4096, bias=False)
+          (act_fn): SiLU()
+        )
+        (input_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+        (post_attention_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+      )
+      (18): LlamaDecoderLayer(
+        (self_attn): LlamaAttention(
+          (q_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (k_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (v_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (o_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (rotary_emb): LlamaRotaryEmbedding()
+        )
+        (mlp): LlamaMLP(
+          (gate_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (up_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (down_proj): Linear(in_features=14336, out_features=4096, bias=False)
+          (act_fn): SiLU()
+        )
+        (input_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+        (post_attention_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+      )
+      (19): LlamaDecoderLayer(
+        (self_attn): LlamaAttention(
+          (q_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (k_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (v_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (o_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (rotary_emb): LlamaRotaryEmbedding()
+        )
+        (mlp): LlamaMLP(
+          (gate_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (up_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (down_proj): Linear(in_features=14336, out_features=4096, bias=False)
+          (act_fn): SiLU()
+        )
+        (input_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+        (post_attention_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+      )
+      (20): LlamaDecoderLayer(
+        (self_attn): LlamaAttention(
+          (q_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (k_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (v_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (o_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (rotary_emb): LlamaRotaryEmbedding()
+        )
+        (mlp): LlamaMLP(
+          (gate_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (up_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (down_proj): Linear(in_features=14336, out_features=4096, bias=False)
+          (act_fn): SiLU()
+        )
+        (input_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+        (post_attention_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+      )
+      (21): LlamaDecoderLayer(
+        (self_attn): LlamaAttention(
+          (q_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (k_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (v_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (o_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (rotary_emb): LlamaRotaryEmbedding()
+        )
+        (mlp): LlamaMLP(
+          (gate_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (up_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (down_proj): Linear(in_features=14336, out_features=4096, bias=False)
+          (act_fn): SiLU()
+        )
+        (input_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+        (post_attention_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+      )
+      (22): LlamaDecoderLayer(
+        (self_attn): LlamaAttention(
+          (q_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (k_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (v_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (o_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (rotary_emb): LlamaRotaryEmbedding()
+        )
+        (mlp): LlamaMLP(
+          (gate_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (up_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (down_proj): Linear(in_features=14336, out_features=4096, bias=False)
+          (act_fn): SiLU()
+        )
+        (input_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+        (post_attention_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+      )
+      (23): LlamaDecoderLayer(
+        (self_attn): LlamaAttention(
+          (q_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (k_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (v_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (o_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (rotary_emb): LlamaRotaryEmbedding()
+        )
+        (mlp): LlamaMLP(
+          (gate_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (up_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (down_proj): Linear(in_features=14336, out_features=4096, bias=False)
+          (act_fn): SiLU()
+        )
+        (input_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+        (post_attention_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+      )
+      (24): LlamaDecoderLayer(
+        (self_attn): LlamaAttention(
+          (q_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (k_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (v_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (o_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (rotary_emb): LlamaRotaryEmbedding()
+        )
+        (mlp): LlamaMLP(
+          (gate_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (up_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (down_proj): Linear(in_features=14336, out_features=4096, bias=False)
+          (act_fn): SiLU()
+        )
+        (input_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+        (post_attention_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+      )
+      (25): LlamaDecoderLayer(
+        (self_attn): LlamaAttention(
+          (q_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (k_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (v_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (o_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (rotary_emb): LlamaRotaryEmbedding()
+        )
+        (mlp): LlamaMLP(
+          (gate_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (up_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (down_proj): Linear(in_features=14336, out_features=4096, bias=False)
+          (act_fn): SiLU()
+        )
+        (input_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+        (post_attention_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+      )
+      (26): LlamaDecoderLayer(
+        (self_attn): LlamaAttention(
+          (q_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (k_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (v_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (o_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (rotary_emb): LlamaRotaryEmbedding()
+        )
+        (mlp): LlamaMLP(
+          (gate_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (up_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (down_proj): Linear(in_features=14336, out_features=4096, bias=False)
+          (act_fn): SiLU()
+        )
+        (input_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+        (post_attention_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+      )
+      (27): LlamaDecoderLayer(
+        (self_attn): LlamaAttention(
+          (q_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (k_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (v_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (o_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (rotary_emb): LlamaRotaryEmbedding()
+        )
+        (mlp): LlamaMLP(
+          (gate_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (up_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (down_proj): Linear(in_features=14336, out_features=4096, bias=False)
+          (act_fn): SiLU()
+        )
+        (input_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+        (post_attention_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+      )
+      (28): LlamaDecoderLayer(
+        (self_attn): LlamaAttention(
+          (q_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (k_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (v_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (o_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (rotary_emb): LlamaRotaryEmbedding()
+        )
+        (mlp): LlamaMLP(
+          (gate_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (up_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (down_proj): Linear(in_features=14336, out_features=4096, bias=False)
+          (act_fn): SiLU()
+        )
+        (input_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+        (post_attention_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+      )
+      (29): LlamaDecoderLayer(
+        (self_attn): LlamaAttention(
+          (q_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (k_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (v_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (o_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (rotary_emb): LlamaRotaryEmbedding()
+        )
+        (mlp): LlamaMLP(
+          (gate_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (up_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (down_proj): Linear(in_features=14336, out_features=4096, bias=False)
+          (act_fn): SiLU()
+        )
+        (input_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+        (post_attention_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+      )
+      (30): LlamaDecoderLayer(
+        (self_attn): LlamaAttention(
+          (q_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (k_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (v_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (o_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (rotary_emb): LlamaRotaryEmbedding()
+        )
+        (mlp): LlamaMLP(
+          (gate_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (up_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (down_proj): Linear(in_features=14336, out_features=4096, bias=False)
+          (act_fn): SiLU()
+        )
+        (input_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+        (post_attention_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+      )
+      (31): LlamaDecoderLayer(
+        (self_attn): LlamaAttention(
+          (q_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (k_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (v_proj): Linear(in_features=4096, out_features=1024, bias=False)
+          (o_proj): Linear(in_features=4096, out_features=4096, bias=False)
+          (rotary_emb): LlamaRotaryEmbedding()
+        )
+        (mlp): LlamaMLP(
+          (gate_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (up_proj): Linear(in_features=4096, out_features=14336, bias=False)
+          (down_proj): Linear(in_features=14336, out_features=4096, bias=False)
+          (act_fn): SiLU()
+        )
+        (input_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+        (post_attention_layernorm): LlamaRMSNorm((4096,), eps=1e-05)
+      )
+    )
+    (norm): LlamaRMSNorm((4096,), eps=1e-05)
+    (rotary_emb): LlamaRotaryEmbedding()
+  )
+  (lm_head): Linear(in_features=4096, out_features=128256, bias=False)
+)
+####################
+lora config.
+####################
+LoraConfig(peft_type=<PeftType.LORA: 'LORA'>, auto_mapping=None, base_model_name_or_path=None, revision=None, task_type='CAUSAL_LM', inference_mode=False, r=8, target_modules={'q_proj', 'v_proj'}, lora_alpha=32, lora_dropout=0.1, fan_in_fan_out=False, bias='none', use_rslora=False, modules_to_save=None, init_lora_weights=True, layers_to_transform=None, layers_pattern=None, rank_pattern={}, alpha_pattern={}, megatron_config=None, megatron_core='megatron.core', loftq_config={}, use_dora=False, layer_replication=None, runtime_config=LoraRuntimeConfig(ephemeral_gpu_offload=False))
+####################
+early stopping config.
+####################
+Patience: 3
+Threshold: 0.01
+####################
+training_args config.
+####################
+Mini Batch Size: 2
+Gradient Accumulation: 64
+Effective Batch Size: 128
+LR: 3e-05
+# Epochs:15
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.25 GB, Reserved Memory: 13.16 GB
+GPU 1: Allocated Memory: 8.31 GB, Reserved Memory: 17.92 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.75 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.75 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.75 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.75 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.75 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.75 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.75 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.75 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.75 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.75 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.75 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.75 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+Effective Batch 20.0 Validation Loss: 0.6612805679529726
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+Effective Batch 40.0 Validation Loss: 0.5764544244535906
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+Effective Batch 60.0 Validation Loss: 0.5249768523517959
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+Effective Batch 80.0 Validation Loss: 0.48202176038138644
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+Effective Batch 100.0 Validation Loss: 0.4472499972807909
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 13.89 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 17.93 GB
+Epoch 1 Training Loss: 0.6468766376946531
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+Effective Batch 20.0 Validation Loss: 0.39727479882701905
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+Effective Batch 40.0 Validation Loss: 0.3674376034986473
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+Effective Batch 60.0 Validation Loss: 0.34944353715150417
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+Effective Batch 80.0 Validation Loss: 0.3399279058098555
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+Effective Batch 100.0 Validation Loss: 0.33722712319649145
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+Epoch 2 Training Loss: 0.327511458794248
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+Effective Batch 20.0 Validation Loss: 0.3348142142126898
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+Effective Batch 40.0 Validation Loss: 0.3336398870109798
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+####################
+memory allocation
+####################
+GPU 0: Allocated Memory: 7.26 GB, Reserved Memory: 14.50 GB
+GPU 1: Allocated Memory: 8.32 GB, Reserved Memory: 19.06 GB
+Effective Batch 60.0 Validation Loss: 0.3328064257751206
+Early stopping triggered.

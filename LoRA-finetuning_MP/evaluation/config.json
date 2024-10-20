@@ -1,6 +1,15 @@
 {
     "instruct": {
+        "cs-en": "Translate Czech to English: ",
         "de-en": "Translate German to English: ",
-        "zh-en": "Translate Chinese to English: "
+        "gu-en": "Translate Gujarati to English: ",
+        "is-en": "Translate Icelandic to English: ",
+        "ru-en": "Translate Russian to English: ",
+        "zh-en": "Translate Chinese to English: ",
+        "en-cs": "Translate English to Czech: ",
+        "en-de": "Translate English to German: ",
+        "en-is": "Translate English to Icelandic: ",
+        "en-ru": "Translate English to Russian: ",
+        "en-zh": "Translate English to Chinese: "  
     }
 }

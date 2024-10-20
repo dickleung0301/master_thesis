@@ -31,7 +31,7 @@ def comet_evaluation(file_dir, source_lang, target_lang):
   with open(save_path, 'w') as f:
     f.write(f'COMET Score: {model_output.system_score}\n')
 
-def corpus_bleu_evaluation(file_dir, source_lang, target_lang):
+def corpus_bleu_evaluation(file_dir, source_lang, target_lang, bleu_tokenize):
 
   data_path = file_dir + '/' + 'cleaned_' + source_lang + '-' + target_lang + '.csv'
   save_path = file_dir + '/BLEU/' + source_lang + '-' + target_lang + '.bleu'
@@ -45,7 +45,7 @@ def corpus_bleu_evaluation(file_dir, source_lang, target_lang):
     trg_corpus.append(df['labels'].iloc[i])
 
   # calculate the corpus bleu score
-  bleu = sacrebleu.corpus_bleu(trans_corpus, [trg_corpus])
+  bleu = sacrebleu.corpus_bleu(trans_corpus, [trg_corpus], tokenize=bleu_tokenize)
 
   # save the corpus bleu score
   with open(save_path, 'w') as f:
@@ -59,13 +59,16 @@ if __name__ == "__main__":
                     help='Source language (default: eng_Latn)')
   parser.add_argument('-t', '--trg_lang', type=str, default='deu_Latn', 
                     help='Target language (default: deu_Latn)')
+  parser.add_argument('-bt', '--bleu_tokenize', type=str, default='none',
+                    help='Tokenize method for BLEU (default: none)')
 
   # get the arguments
   args = parser.parse_args()
   file_dir = args.directory
   source_lang = args.src_lang
   target_lang = args.trg_lang
+  bleu_tokenize = args.bleu_tokenize
 
   # evaluate the result with BLEU & COMET
-  corpus_bleu_evaluation(file_dir, source_lang, target_lang)
+  corpus_bleu_evaluation(file_dir, source_lang, target_lang, bleu_tokenize)
   comet_evaluation(file_dir, source_lang, target_lang)

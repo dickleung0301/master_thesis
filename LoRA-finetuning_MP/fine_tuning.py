@@ -68,14 +68,18 @@ def fine_tuning(model_choice, src_lang, trg_lang, dir, mini_batch_size, grad_acc
     model.gradient_checkpointing_disable()
 
     # load alma
-    training_dataset = load_alma(split='train', dir=dir)
-    eval_dataset = load_alma(split='validation', dir=dir)
+    if src_lang != None and trg_lang != None and dir != None:
+        training_dataset = load_alma(split='train', dir=dir)
+        eval_dataset = load_alma(split='validation', dir=dir)
+    else:
+        training_dataset = None
+        eval_dataset = None
 
     # preprocess the dataset
     processed_training_dataset = finetuning_preprocess(dataset=training_dataset, key='translation', src_lang=src_lang, trg_lang=trg_lang,
                                                     trans_dir=dir, tokenizer=tokenizer, masking=masking)
     processed_eval_dataset = finetuning_preprocess(dataset=eval_dataset, key='translation', src_lang=src_lang, trg_lang=trg_lang,
-                                                    trans_dir=dir, tokenizer=tokenizer, masking=masking)
+                                                    trans_dir=dir, tokenizer=tokenizer, masking=masking, split='validation')
 
     # fit the data into a dataloader
     train_loader = DataLoader(
@@ -180,7 +184,7 @@ def fine_tuning(model_choice, src_lang, trg_lang, dir, mini_batch_size, grad_acc
 
     return model, tokenizer
 
-def inference(src_lang, trg_lang, dir, save_dir, right_padding, baseline, model_choice):
+def inference(src_lang, trg_lang, dir, save_dir, right_padding, baseline, model_choice, wmt22, wmt19):
 
     # load the access token from .env
     load_dotenv()
@@ -207,12 +211,16 @@ def inference(src_lang, trg_lang, dir, save_dir, right_padding, baseline, model_
     first_device = next(model.parameters()).device
 
     # load wmt dataset
-    test_dataset = load_wmt22(dir=dir)
-
-    # preprocess the dataset
-    processed_test_dataset = generation_preprocess(dataset=test_dataset, key=dir, src_lang=src_lang, trg_lang=trg_lang,
-                                                 trans_dir=dir, tokenizer=tokenizer, right_padding=right_padding)
-
+    if wmt22:
+        test_dataset = load_wmt22(dir=dir)
+        # preprocess the dataset
+        processed_test_dataset = generation_preprocess(dataset=test_dataset, key=dir, src_lang=src_lang, trg_lang=trg_lang,
+                                                    trans_dir=dir, tokenizer=tokenizer, right_padding=right_padding)
+    if wmt19:
+        test_dataset = load_wmt19(dir=dir)
+        # preprocess the dataset
+        processed_test_dataset = generation_preprocess(dataset=test_dataset, key='translation', src_lang=src_lang, trg_lang=trg_lang,
+                                                    trans_dir=dir, tokenizer=tokenizer, right_padding=right_padding)
 
     # pack the dataset into dataloader
     test_dataloader = DataLoader(processed_test_dataset, batch_size=8, shuffle=False)
@@ -256,4 +264,4 @@ def inference(src_lang, trg_lang, dir, save_dir, right_padding, baseline, model_
         'predictions': predictions_list
     }
     df = pd.DataFrame(materialisation)
-    df.to_csv(save_dir + '/predictions.csv', index=False)
+    df.to_csv(save_dir + f'/{dir}_predictions.csv', index=False)

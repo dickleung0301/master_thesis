@@ -1,0 +1,10 @@
+The token has not been saved to the git credentials helper. Pass `add_to_git_credential=True` in this function directly or `--add-to-git-credential` if using via `huggingface-cli` if you want to set the git credential as well.
+Token is valid (permission: write).
+Your token has been saved to /home/yleung/.cache/huggingface/token
+Login successful
+Original Text:
+testing for bos token :)
+Encoded Tokens:
+[128000, 9016, 369, 43746, 4037, 27046, 128001, 128001, 128001, 128001, 128001, 128001, 128001, 128001, 128001, 128001, 128001, 128001, 128001, 128001, 128001, 128001, 128001, 128001, 128001, 128001, 128001, 128001, 128001, 128001]
+Decoded Tokens:
+<|begin_of_text|>testing for bos token :)<|end_of_text|><|end_of_text|><|end_of_text|><|end_of_text|><|end_of_text|><|end_of_text|><|end_of_text|><|end_of_text|><|end_of_text|><|end_of_text|><|end_of_text|><|end_of_text|><|end_of_text|><|end_of_text|><|end_of_text|><|end_of_text|><|end_of_text|><|end_of_text|><|end_of_text|><|end_of_text|><|end_of_text|><|end_of_text|><|end_of_text|><|end_of_text|>

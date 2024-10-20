@@ -11,8 +11,8 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-m', '--model_choice', type=int, help='model to be fine-tuned')
-    parser.add_argument('-s', '--src_lang', type=str, help='source language of the translation direction')
-    parser.add_argument('-t', '--trg_lang', type=str, help='target language of the translation direction')
+    parser.add_argument('-s', '--src_lang', type=str, default=None, help='source language of the translation direction')
+    parser.add_argument('-t', '--trg_lang', type=str, default=None, help='target language of the translation direction')
     parser.add_argument('--train', dest='train', action='store_true', help='To enable fine tuning')
     parser.add_argument('--inference', dest='inference', action='store_true', help='To enable inference')
     parser.add_argument('--mask', dest='masking', action='store_true', help='To enable masking')
@@ -22,6 +22,8 @@ if __name__ == '__main__':
     parser.add_argument('-ga', '--grad_accum', type=int, help='grad accum for the fine-tuning')
     parser.add_argument('-lr', '--learning_rate', type=float, help='learning rate of the fine-tuning')
     parser.add_argument('-n', '--num_epochs', type=int, help='the number of epochs of the fine-tuning')
+    parser.add_argument('--wmt22', dest='wmt22', action='store_true', help='To use WMT22 dataset for inference')
+    parser.add_argument('--wmt19', dest='wmt19', action='store_true', help='To use WMT19 dataset for inference')
     parser.add_argument('-sd', '--save_dir', type=str, help='the saving directory for model, tokenizer and inference results')
 
     # get the arguments
@@ -34,7 +36,12 @@ if __name__ == '__main__':
     masking = args.masking
     right_padding = args.right_padding
     baseline = args.baseline
-    dir = src_lang + '-' + trg_lang
+    wmt22 = args.wmt22
+    wmt19 = args.wmt19
+    if src_lang != None and trg_lang != None:
+        dir = src_lang + '-' + trg_lang
+    else:
+        dir = None
     mini_batch_size = args.mini_batch_size
     grad_accum = args.grad_accum
     learning_rate = args.learning_rate
@@ -51,4 +58,4 @@ if __name__ == '__main__':
     if infer:
         print("####################\nstarting inference\n####################")
         inference(src_lang=src_lang, trg_lang=trg_lang, dir=dir, save_dir=save_dir, right_padding=right_padding,
-        baseline=baseline, model_choice=model_choice)
+        baseline=baseline, model_choice=model_choice, wmt22=wmt22, wmt19=wmt19)
