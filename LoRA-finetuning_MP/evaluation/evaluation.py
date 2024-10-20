@@ -41,7 +41,7 @@ def corpus_bleu_evaluation(file_dir, source_lang, target_lang, bleu_tokenize):
 
   df = pd.read_csv(data_path)
   for i in range(len(df)):
-    trans_corpus.append(df['predictions'].iloc[i])
+    trans_corpus.append(str(df['predictions'].iloc[i]))
     trg_corpus.append(df['labels'].iloc[i])
 
   # calculate the corpus bleu score
