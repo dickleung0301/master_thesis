@@ -3,9 +3,11 @@ import os
 # setting the visible device
 os.environ["CUDA_VISIBLE_DEVICES"] = "0,1"
 os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'max_split_size_mb:32'
+os.environ["HF_DATASETS_CACHE"] = "/export/data2/yleung/dataset"
 
 import json
 import torch
+import copy
 from datasets import load_dataset
 from torch.utils.data import Dataset, DataLoader
 
@@ -45,7 +47,14 @@ def load_wmt19(dir):
 
     return wmt19
 
-def self_instruct(dataset, key, src_lang, trg_lang, instruction):
+def load_yue_trans():
+
+    yue_tran = load_dataset('BillBao/Yue-Benchmark', 'Yue-TRANS', split='test')
+    en_yue = yue_tran[:200]
+
+    return en_yue
+
+def chat_temp_llama_Instruct_finetune(dataset, key, src_lang, trg_lang, instruction):
 
     # promt format
     user = "<|start_header_id|>user<|end_header_id|>\n"
@@ -57,6 +66,45 @@ def self_instruct(dataset, key, src_lang, trg_lang, instruction):
     # return a list of input sequence with promt format
     return [prefix + sample[key][src_lang] + end_id + '\n' + assistant + sample[key][trg_lang] + end_id  for sample in dataset]
 
+def chat_temp_llama_Instruct_generation(dataset, key, src_lang, trg_lang, instruction):
+
+    # promt format
+    user = "<|start_header_id|>user<|end_header_id|>\n"
+    assistant = "<|start_header_id|>assistant<|end_header_id|>\n"
+    end_id = "<|eot_id|>"
+    system = "<|start_header_id|>system<|end_header_id|>\nYou are a helpful AI assistant for translations\n<|eot_id|>\n"
+    prefix = system + user + instruction
+
+    if src_lang != 'yue' and trg_lang != 'yue':
+        inputs = [prefix + sample[key][src_lang] + end_id + '\n' + assistant for sample in dataset], [sample[key][trg_lang] for sample in dataset]
+    else:
+        inputs = [prefix + dataset[src_lang][i] + end_id + '\n' + assistant for i in range(len(dataset[src_lang]))], [dataset[trg_lang][i] for i in range(len(dataset[trg_lang]))]
+
+    # return a list of input sequence with promt format
+    return inputs
+
+def chat_temp_tower_Instruct_finetune(dataset, key, src_lang, trg_lang, instruction):
+
+    # promt format
+    user = "<|im_start|>user"
+    assistant = "<|im_start|>assistant"
+    end_id = "<|im_end|>"
+    prefix = user + '\n' + instruction
+
+    # return a list of input sequence with promt format
+    return [prefix + sample[key][src_lang] + end_id + '\n' + assistant + '\n' + sample[key][trg_lang] + end_id for sample in dataset]
+
+def chat_temp_tower_Instruct_generation(dataset, key, src_lang, trg_lang, instruction):
+
+    # promt format
+    user = "<|im_start|>user"
+    assistant = "<|im_start|>assistant"
+    end_id = "<|im_end|>"
+    prefix = user + '\n' + instruction
+
+    # return a list of input sequence with promt format
+    return [prefix + sample[key][src_lang] + end_id + '\n' + assistant for sample in dataset], [sample[key][trg_lang] for sample in dataset]
+
 def get_max_length(dataset, tokenizer):
 
     # find the lengths of all seq
@@ -67,7 +115,7 @@ def get_max_length(dataset, tokenizer):
     return max(len_seq)
 
 
-def finetuning_preprocess(tokenizer, masking, dataset=None, key='translation', src_lang=None, trg_lang=None, trans_dir=None, split='train'): # 'translation' : Alma, 'direction': wmt22
+def finetuning_preprocess(model_choice, tokenizer, masking, dataset=None, key='translation', src_lang=None, trg_lang=None, trans_dir=None, split='train'): # 'translation' : Alma, 'direction': wmt22
 
     # load the config file & dict
     with open('config.json', 'r') as f:
@@ -77,7 +125,10 @@ def finetuning_preprocess(tokenizer, masking, dataset=None, key='translation', s
 
     # instantiate the list of inputs & targets
     if dataset != None:
-        inputs = self_instruct(dataset=dataset, key=key, src_lang=src_lang, trg_lang=trg_lang, instruction=instruct[trans_dir])
+        if model_choice == 1 or model_choice == 2:
+            inputs = chat_temp_llama_Instruct_finetune(dataset=dataset, key=key, src_lang=src_lang, trg_lang=trg_lang, instruction=instruct[trans_dir])
+        elif model_choice == 3:
+            inputs = chat_temp_tower_Instruct_finetune(dataset=dataset, key=key, src_lang=src_lang, trg_lang=trg_lang, instruction=instruct[trans_dir])
     else:
         # load all the translation directions & store them in a list
         list_alma_dataset = []
@@ -106,11 +157,16 @@ def finetuning_preprocess(tokenizer, masking, dataset=None, key='translation', s
             re_trans_dir = second_lang + '-' + first_lang
 
             # apply self-instruct format to the translation directions & append it to the inputs
-            inputs.extend(self_instruct(dataset=alma_dataset, key=key, src_lang=first_lang, trg_lang=second_lang, instruction=instruct[trans_dir]))
-            inputs.extend(self_instruct(dataset=alma_dataset, key=key, src_lang=second_lang, trg_lang=first_lang, instruction=instruct[re_trans_dir]))
+            if model_choice == 1 or model_choice == 2:
+                inputs.extend(chat_temp_llama_Instruct_finetune(dataset=alma_dataset, key=key, src_lang=first_lang, trg_lang=second_lang, instruction=instruct[trans_dir]))
+                inputs.extend(chat_temp_llama_Instruct_finetune(dataset=alma_dataset, key=key, src_lang=second_lang, trg_lang=first_lang, instruction=instruct[re_trans_dir]))
+            elif model_choice == 3:
+                inputs.extend(chat_temp_tower_Instruct_finetune(dataset=alma_dataset, key=key, src_lang=first_lang, trg_lang=second_lang, instruction=instruct[trans_dir]))
+                inputs.extend(chat_temp_tower_Instruct_finetune(dataset=alma_dataset, key=key, src_lang=second_lang, trg_lang=first_lang, instruction=instruct[re_trans_dir]))
 
     # set the pad token of llama & padding side
-    tokenizer.pad_token_id = tokenizer.eos_token_id
+    if model_choice == 1 or model_choice == 2:
+        tokenizer.pad_token_id = tokenizer.eos_token_id
     tokenizer.padding_side = 'right'
 
     # tokenize the data
@@ -118,9 +174,13 @@ def finetuning_preprocess(tokenizer, masking, dataset=None, key='translation', s
     max_length = get_max_length(inputs, tokenizer)
     tokenized_inputs = tokenizer(inputs, padding='max_length', truncation=True, max_length=max_length + 1, return_attention_mask=True)
 
-    # initialise a tensor in a shape of (dataset, 600) for masking & state the assistant turn for searching the end of it
+    # initialise a tensor in a shape of (dataset, max_length) for masking & state the assistant turn for searching the end of it
     labels = torch.full((len(tokenized_inputs['input_ids']), max_length + 1), -100)
-    assistant = "<|start_header_id|>assistant<|end_header_id|>\n"
+
+    if model_choice == 1 or model_choice == 2:
+        assistant = "<|start_header_id|>assistant<|end_header_id|>\n"
+    elif model_choice == 3:
+        assistant = "<|im start|>assistant\n"
 
     for i, input_ids in enumerate(tokenized_inputs['input_ids']):      
 
@@ -155,7 +215,7 @@ def finetuning_preprocess(tokenizer, masking, dataset=None, key='translation', s
 
     return dataset
 
-def generation_preprocess(dataset, key, src_lang, trg_lang, trans_dir, tokenizer, right_padding): # 'translation' : Alma, 'direction': wmt22
+def generation_preprocess(model_choice, dataset, src_lang, trg_lang, trans_dir, tokenizer, right_padding, key=None): # 'translation' : Alma, 'direction': wmt22
 
     # load the config file
     with open('config.json', 'r') as f:
@@ -163,29 +223,33 @@ def generation_preprocess(dataset, key, src_lang, trg_lang, trans_dir, tokenizer
 
     instruct = config['instruct']
 
-    # promt format & instruction
-    instruction = instruct[trans_dir]
-    user = "<|start_header_id|>user<|end_header_id|>\n"
-    assistant = "<|start_header_id|>assistant<|end_header_id|>\n"
-    end_id = "<|eot_id|>"
-    system = "<|start_header_id|>system<|end_header_id|>\nYou are a helpful AI assistant for translations\n<|eot_id|>\n"
-    prefix = system + user + instruction
-
     # instantiate the list of inputs & targets
-    inputs = [prefix + sample[key][src_lang] + end_id + '\n' + assistant for sample in dataset]
-    labels = [sample[key][trg_lang] for sample in dataset]
+    if model_choice == 1 or model_choice == 2:
+        inputs, labels = chat_temp_llama_Instruct_generation(dataset=dataset, key=key, src_lang=src_lang, trg_lang=trg_lang, instruction=instruct[trans_dir])
+    elif model_choice == 3:
+        inputs, labels = chat_temp_tower_Instruct_generation(dataset=dataset, key=key, src_lang=src_lang, trg_lang=trg_lang, instruction=instruct[trans_dir])
 
     # set the pad token of llama & padding side
-    tokenizer.pad_token_id = tokenizer.eos_token_id
+    if model_choice == 1 or model_choice == 2:
+        tokenizer.pad_token_id = tokenizer.eos_token_id
 
     if not right_padding:
         tokenizer.padding_side = 'left'
     else:
         tokenizer.padding_side = 'right'
 
+    # check the max seq len of inputs & labels
+    max_length_inputs = get_max_length(inputs, tokenizer)
+    max_length_labels = get_max_length(labels, tokenizer)
+
+    if max_length_inputs >= max_length_labels:
+        max_length = max_length_inputs
+    else:
+        max_length = max_length_labels
+
     # tokenize the data
-    tokenized_inputs = tokenizer(inputs, padding='max_length', truncation=True, max_length=128, return_attention_mask=True)
-    tokenized_labels = tokenizer(labels, padding='max_length', truncation=True, max_length=128)
+    tokenized_inputs = tokenizer(inputs, padding='max_length', truncation=True, max_length=max_length, return_attention_mask=True)
+    tokenized_labels = tokenizer(labels, padding='max_length', truncation=True, max_length=max_length)
 
     # create the dataset
     dataset = TranslationDataset(

@@ -3,7 +3,7 @@ import pandas as pd
 import argparse
 
 # a function to strip the inputs & generations of LLMs
-def strip_output(path, src_lang, trg_lang, save_dir):
+def strip_output(path, src_lang, trg_lang, save_dir, tower):
     
     # get the instruction from config
     dir = src_lang + '-' + trg_lang
@@ -16,11 +16,17 @@ def strip_output(path, src_lang, trg_lang, save_dir):
 
     for i in range(len(df)):
         # strip the inputs
-        df['inputs'].iloc[i] = df['inputs'].iloc[i].split('assistant\n')[0]
+        if not tower:
+            df['inputs'].iloc[i] = df['inputs'].iloc[i].split('assistant\n')[0]
+        else:
+            df['inputs'].iloc[i] = df['inputs'].iloc[i].split('<|im_start|> assistant')[0]
         df['inputs'].iloc[i] = df['inputs'].iloc[i].split(instruct[dir])[-1]
         df['inputs'].iloc[i] = df['inputs'].iloc[i].strip()
         # strip the generations
-        df['predictions'].iloc[i] = df['predictions'].iloc[i].split('assistant\n')[-1]
+        if not tower:
+            df['predictions'].iloc[i] = df['predictions'].iloc[i].split('assistant\n')[-1]
+        else:
+            df['predictions'].iloc[i] = df['predictions'].iloc[i].split('<|im_start|> assistant')[-1]
         df['predictions'].iloc[i] = df['predictions'].iloc[i].strip()
 
     save_dir = save_dir + '/' + 'cleaned_' + dir + '.csv'
@@ -56,12 +62,14 @@ if __name__ == '__main__':
     parser.add_argument('-t', '--trg_lang', type=str, help='target language of the translation direction')
     parser.add_argument('-p', '--path', type=str, help='path of the raw data')
     parser.add_argument('-sd', '--save_dir', type=str, help='saving directory of the processed data')
+    parser.add_argument('--tower', dest='tower', action='store_true', help='postprocess for tower')
 
     args = parser.parse_args()
     src_lang = args.src_lang
     trg_lang = args.trg_lang
     path = args.path
     save_dir = args.save_dir
+    tower = args.tower
 
-    processed_path = strip_output(path=path, src_lang=src_lang, trg_lang=trg_lang, save_dir=save_dir)
+    processed_path = strip_output(path=path, src_lang=src_lang, trg_lang=trg_lang, save_dir=save_dir, tower=tower)
     format_comet(path=processed_path, src_lang=src_lang, trg_lang=trg_lang, save_dir=save_dir)

@@ -1,0 +1,7 @@
+The token has not been saved to the git credentials helper. Pass `add_to_git_credential=True` in this function directly or `--add-to-git-credential` if using via `huggingface-cli` if you want to set the git credential as well.
+Token is valid (permission: write).
+Your token has been saved to /home/yleung/.cache/huggingface/token
+Login successful
+The word embeddings are the different :)
+The lm heads are the different :)
+All the params are equal

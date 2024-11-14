@@ -1,0 +1,12 @@
+The token has not been saved to the git credentials helper. Pass `add_to_git_credential=True` in this function directly or `--add-to-git-credential` if using via `huggingface-cli` if you want to set the git credential as well.
+Token is valid (permission: write).
+Your token has been saved to /home/yleung/.cache/huggingface/token
+Login successful
+input text:我猜跟金銀角的寶 
+generated text: 我猜跟金銀角的寶,但,在,但,但,
+input text:這些措施，促進了蒙古 
+generated text: 這些措施促進了蒙古,在,在,在,優惠平價機票,機票價格查詢,飛機航班查詢,選擇自由,價格透明,網上訂機票首選永安旅遊
+input text:唔知點解香港人個格 
+generated text: 唔知點解香港人個格,我,我,我,www.com.com.com.com.com.com.com.com.com.com.com.com.com.com.com.com.com.com.com.com.com
+input text:袁弓夷冇耐之前都有提過美國 
+generated text: 袁弓夷冇耐之前都有提過美國,但,在,但,所以,但,所以,

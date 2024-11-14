@@ -59,6 +59,8 @@ if __name__ == "__main__":
                     help='Source language (default: eng_Latn)')
   parser.add_argument('-t', '--trg_lang', type=str, default='deu_Latn', 
                     help='Target language (default: deu_Latn)')
+  parser.add_argument('--bleu', dest='bleu', action='store_true', help='To do BLEU')
+  parser.add_argument('--comet', dest='comet', action='store_true', help='To do COMET')
   parser.add_argument('-bt', '--bleu_tokenize', type=str, default='none',
                     help='Tokenize method for BLEU (default: none)')
 
@@ -68,7 +70,11 @@ if __name__ == "__main__":
   source_lang = args.src_lang
   target_lang = args.trg_lang
   bleu_tokenize = args.bleu_tokenize
+  bleu = args.bleu
+  comet = args.comet
 
   # evaluate the result with BLEU & COMET
-  corpus_bleu_evaluation(file_dir, source_lang, target_lang, bleu_tokenize)
-  comet_evaluation(file_dir, source_lang, target_lang)
+  if bleu:
+    corpus_bleu_evaluation(file_dir, source_lang, target_lang, bleu_tokenize)
+  if comet:
+    comet_evaluation(file_dir, source_lang, target_lang)

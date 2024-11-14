@@ -3,6 +3,7 @@ import os
 # setting the visible device
 os.environ["CUDA_VISIBLE_DEVICES"] = "0,1"
 os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'max_split_size_mb:32'
+os.environ["HF_DATASETS_CACHE"] = "/export/data2/yleung/dataset"
 
 import torch
 from torch.utils.data import DataLoader
@@ -16,34 +17,41 @@ from load_model import *
 from peft import LoraConfig, get_peft_model
 from accelerate import Accelerator, infer_auto_device_map, dispatch_model
 from accelerate.utils import set_seed
+from vocab_adapt_utils import * 
+from utils import *
 
-def fine_tuning(model_choice, src_lang, trg_lang, dir, mini_batch_size, grad_accum, learning_rate, num_epochs, masking, save_dir):
+def fine_tuning(model_choice, vocab_adapt, lora, sanity_check, mono_train, mono_corpus_train, mono_corpus_eval, tokenizer_path, src_lang, trg_lang, dir, mini_batch_size, grad_accum, learning_rate, num_epochs, masking, save_dir, train_num_line, eval_num_line):
 
-    accelerator = Accelerator(gradient_accumulation_steps=grad_accum)
+    accelerator = Accelerator(gradient_accumulation_steps=grad_accum, mixed_precision='fp16')
     set_seed(42)
 
     # load model and tokenizer
     model, tokenizer = model_factory(model_choice=model_choice)
+    if vocab_adapt:
+        model, tokenizer = vocab_adaptation(model=model, original_tokenizer=tokenizer, tokenizer_path=tokenizer_path, lora=lora)
 
     # model information
     print("####################\nmodel info.\n####################")
     print(model)
 
     # applying LoRA to the model
-    lora_config = LoraConfig(
-        r=8,
-        lora_alpha=32,
-        target_modules=['q_proj', 'v_proj'],
-        lora_dropout=0.1,
-        bias='none',
-        task_type='CAUSAL_LM'
-    )
+    if not vocab_adapt and not sanity_check:
+        lora_config = LoraConfig(
+            r=8,
+            lora_alpha=32,
+            target_modules=['q_proj', 'v_proj'],
+            lora_dropout=0.1,
+            bias='none',
+            task_type='CAUSAL_LM'
+        )
 
-    print("####################\nlora config.\n####################")
-    print(lora_config)
+        print("####################\nlora config.\n####################")
+        print(lora_config)
 
-    # prepare the model for training with LoRA
-    model = get_peft_model(model, lora_config)
+        # prepare the model for training with LoRA
+        model = get_peft_model(model, lora_config)
+    elif sanity_check:
+        model = freeze_body_lora_embedd(model)        
 
     max_memory = {
         0: "8GiB",  # cuda:0 -> physical GPU 0
@@ -65,27 +73,30 @@ def fine_tuning(model_choice, src_lang, trg_lang, dir, mini_batch_size, grad_acc
 
     # Distribute the model
     model = dispatch_model(model, device_map=device_map)
-    model.gradient_checkpointing_disable()
 
     # load alma
-    if src_lang != None and trg_lang != None and dir != None:
+    if src_lang != None and trg_lang != None and dir != None and mono_train == False:
         training_dataset = load_alma(split='train', dir=dir)
         eval_dataset = load_alma(split='validation', dir=dir)
+    elif mono_train == True:
+        processed_training_dataset = LineByLineDataset(mono_corpus_train, tokenizer=tokenizer, model_choice=model_choice, num_line=train_num_line)
+        processed_eval_dataset = LineByLineDataset(mono_corpus_eval, tokenizer=tokenizer, model_choice=model_choice, num_line=eval_num_line)
     else:
         training_dataset = None
         eval_dataset = None
 
     # preprocess the dataset
-    processed_training_dataset = finetuning_preprocess(dataset=training_dataset, key='translation', src_lang=src_lang, trg_lang=trg_lang,
-                                                    trans_dir=dir, tokenizer=tokenizer, masking=masking)
-    processed_eval_dataset = finetuning_preprocess(dataset=eval_dataset, key='translation', src_lang=src_lang, trg_lang=trg_lang,
-                                                    trans_dir=dir, tokenizer=tokenizer, masking=masking, split='validation')
+    if mono_train == False:
+        processed_training_dataset = finetuning_preprocess(model_choice=model_choice, dataset=training_dataset, key='translation', src_lang=src_lang, trg_lang=trg_lang,
+                                                        trans_dir=dir, tokenizer=tokenizer, masking=masking)
+        processed_eval_dataset = finetuning_preprocess(model_choice=model_choice, dataset=eval_dataset, key='translation', src_lang=src_lang, trg_lang=trg_lang,
+                                                        trans_dir=dir, tokenizer=tokenizer, masking=masking, split='validation')
 
     # fit the data into a dataloader
     train_loader = DataLoader(
         processed_training_dataset,
         batch_size=mini_batch_size,
-        shuffle=True,
+        shuffle=not mono_train,
         collate_fn=None
     )
 
@@ -108,6 +119,10 @@ def fine_tuning(model_choice, src_lang, trg_lang, dir, mini_batch_size, grad_acc
     early_stop_threshold = 0.01
     early_stop = False
     num_bad_steps = 0
+    if not vocab_adapt:
+        eff_batch_to_eval = 20
+    else:
+        eff_batch_to_eval = 100
     print("####################\nearly stopping config.\n####################")
     print(f"Patience: {patience}")
     print(f"Threshold: {early_stop_threshold}")
@@ -118,6 +133,7 @@ def fine_tuning(model_choice, src_lang, trg_lang, dir, mini_batch_size, grad_acc
     print(f"Effective Batch Size: {mini_batch_size * grad_accum}")
     print(f"LR: {learning_rate}")
     print(f"# Epochs:{num_epochs}")
+    print(f"After {eff_batch_to_eval} Effective Batch, The Model Will Be Evaluated")
 
     # training loop
     for epoch in range(num_epochs):
@@ -136,14 +152,14 @@ def fine_tuning(model_choice, src_lang, trg_lang, dir, mini_batch_size, grad_acc
                 optimizer.zero_grad()
 
             # logging allocated & reserved memory for devices
-            if step % 100 == 0:
-                print("####################\nmemory allocation\n####################")
-                for i in range(torch.cuda.device_count()):
-                    allocated_memory = torch.cuda.memory_allocated(i) / (1024 ** 3)
-                    reserved_memory = torch.cuda.memory_reserved(i) / (1024 ** 3)
-                    print(f"GPU {i}: Allocated Memory: {allocated_memory:.2f} GB, Reserved Memory: {reserved_memory:.2f} GB")
+            #if step % 100 == 0:
+            #    print("####################\nmemory allocation\n####################")
+            #    for i in range(torch.cuda.device_count()):
+            #        allocated_memory = torch.cuda.memory_allocated(i) / (1024 ** 3)
+            #        reserved_memory = torch.cuda.memory_reserved(i) / (1024 ** 3)
+            #        print(f"GPU {i}: Allocated Memory: {allocated_memory:.2f} GB, Reserved Memory: {reserved_memory:.2f} GB")
 
-            if (step + 1) % (grad_accum * 20) == 0:
+            if (step + 1) % (grad_accum * eff_batch_to_eval) == 0:
                 # Evaluate the model on the validation dataset
                 model.eval()
                 eval_loss = 0
@@ -214,13 +230,18 @@ def inference(src_lang, trg_lang, dir, save_dir, right_padding, baseline, model_
     if wmt22:
         test_dataset = load_wmt22(dir=dir)
         # preprocess the dataset
-        processed_test_dataset = generation_preprocess(dataset=test_dataset, key=dir, src_lang=src_lang, trg_lang=trg_lang,
+        processed_test_dataset = generation_preprocess(model_choice=model_choice, dataset=test_dataset, key=dir, src_lang=src_lang, trg_lang=trg_lang,
                                                     trans_dir=dir, tokenizer=tokenizer, right_padding=right_padding)
     if wmt19:
         test_dataset = load_wmt19(dir=dir)
         # preprocess the dataset
-        processed_test_dataset = generation_preprocess(dataset=test_dataset, key='translation', src_lang=src_lang, trg_lang=trg_lang,
+        processed_test_dataset = generation_preprocess(model_choice=model_choice, dataset=test_dataset, key='translation', src_lang=src_lang, trg_lang=trg_lang,
                                                     trans_dir=dir, tokenizer=tokenizer, right_padding=right_padding)
+    if src_lang == 'yue' or trg_lang == 'yue':
+        test_dataset = load_yue_trans()
+        # preprocess the dataset
+        processed_test_dataset = generation_preprocess(model_choice=model_choice, dataset=test_dataset, src_lang=src_lang, trg_lang=trg_lang,
+                                                    trans_dir=dir, tokenizer=tokenizer, right_padding=right_padding)   
 
     # pack the dataset into dataloader
     test_dataloader = DataLoader(processed_test_dataset, batch_size=8, shuffle=False)
@@ -239,7 +260,7 @@ def inference(src_lang, trg_lang, dir, save_dir, right_padding, baseline, model_
 
         # inference
         with torch.no_grad():
-            outputs = model.generate(input_ids=input_ids, attention_mask=attention_mask, max_new_tokens=50,
+            outputs = model.generate(input_ids=input_ids, attention_mask=attention_mask, max_new_tokens=256,
                                      do_sample=False, temperature=1.0, top_p=1.0)
 
         # Move tensors to CPU for decoding

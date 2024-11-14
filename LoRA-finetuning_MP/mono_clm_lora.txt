@@ -1,0 +1,12 @@
+The token has not been saved to the git credentials helper. Pass `add_to_git_credential=True` in this function directly or `--add-to-git-credential` if using via `huggingface-cli` if you want to set the git credential as well.
+Token is valid (permission: write).
+Your token has been saved to /home/yleung/.cache/huggingface/token
+Login successful
+input text:我猜跟金銀角的寶 
+generated text: 我猜跟金銀角的寶藏有關吧？
+input text:這些措施，促進了蒙古 
+generated text: 這些措施，促進了蒙古人與中國人之間的文化交流，促進了蒙古人與中國人之間的經濟合作。
+input text:唔知點解香港人個格 
+generated text: 唔知點解香港人個格，好似係因為香港人好似係「無所不在」，好似係「無所不為」，好似係「無所不問」，好似係「無所不敢問」，好似係「無
+input text:袁弓夷冇耐之前都有提過美國 
+generated text: 袁弓夷冇耐之前都有提過美國的《美國人權法案》(Civil Rights Act)。美國人權法案的第一條款項，禁止歧視美國公民的種族、宗教、性別、國籍、語言、身體

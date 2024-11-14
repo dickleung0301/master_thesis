@@ -1,0 +1,12 @@
+The token has not been saved to the git credentials helper. Pass `add_to_git_credential=True` in this function directly or `--add-to-git-credential` if using via `huggingface-cli` if you want to set the git credential as well.
+Token is valid (permission: write).
+Your token has been saved to /home/yleung/.cache/huggingface/token
+Login successful
+Testing generate: 
+generated token ids: tensor([28009, 25532, 25334, 13572, 11793, 25336, 18122,   146, 25295,   146,
+        25295,   146, 25295,   146, 25295,   337, 25295,   337, 25295,   146,
+        25295,   337, 25295,   337, 25295,   337, 25295,   337, 25295,  2015,
+        25290, 27831,    29,   146, 25295,   146, 25295,   337, 25295,   337,
+        25295, 17016, 25295,   337, 25295, 25435, 25295, 25595, 25290,   211],
+       device='cuda:0') 
+generated text: ☆十(旅遊資訊王TravelKing) 靈國家、國家、國家、國家、產業、產業、國家、產業、產業、產業、產業、園區,鄧台灣國家、國家、產業、產業、綜合性、產業、等、運,主要
