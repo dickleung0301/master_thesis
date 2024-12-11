@@ -17,7 +17,7 @@ if __name__ == '__main__':
     parser.add_argument('--train', dest='train', action='store_true', help='To enable fine tuning')
     parser.add_argument('--vocab_adapt', dest='vocab_adapt', action='store_true', help='To carry out vocabulary adaptation')
     parser.add_argument('--lora', dest='lora', action='store_true', help='To apply lora when carrying out vocabulary adaptation')
-    parser.add_argument('--sanity_check', dest='sanity_check', action='store_true', help='To carry out sanity check for different settings')
+    parser.add_argument('--freeze_trans', dest='freeze_trans', action='store_true', help='To freeze the transformers body')
     parser.add_argument('--mono_train', dest='mono_train', action='store_true', help='To carry out monolingual corpus training')
     parser.add_argument('--inference', dest='inference', action='store_true', help='To enable inference')
     parser.add_argument('--mask', dest='masking', action='store_true', help='To enable masking')
@@ -27,8 +27,7 @@ if __name__ == '__main__':
     parser.add_argument('-ga', '--grad_accum', type=int, help='grad accum for the fine-tuning')
     parser.add_argument('-lr', '--learning_rate', type=float, help='learning rate of the fine-tuning')
     parser.add_argument('-n', '--num_epochs', type=int, help='the number of epochs of the fine-tuning')
-    parser.add_argument('--wmt22', dest='wmt22', action='store_true', help='To use WMT22 dataset for inference')
-    parser.add_argument('--wmt19', dest='wmt19', action='store_true', help='To use WMT19 dataset for inference')
+    parser.add_argument('--testset', dest='testset', type=str, help='Testset used in testing')
     parser.add_argument('-sd', '--save_dir', type=str, help='the saving directory for model, tokenizer and inference results')
     parser.add_argument('--mono_corpus_train', type=str, help='the path of the training monolingual corpus')
     parser.add_argument('--mono_corpus_eval', type=str, help='the path of the eval monolingual corpus')
@@ -44,14 +43,14 @@ if __name__ == '__main__':
     train = args.train
     vocab_adapt = args.vocab_adapt
     lora = args.lora
-    sanity_check = args.sanity_check
+    freeze_trans = args.freeze_trans
     mono_train = args.mono_train
     infer = args.inference
     masking = args.masking
     right_padding = args.right_padding
     baseline = args.baseline
-    wmt22 = args.wmt22
-    wmt19 = args.wmt19
+    testset = args.testset
+
     if src_lang != None and trg_lang != None:
         dir = src_lang + '-' + trg_lang
     else:
@@ -70,7 +69,7 @@ if __name__ == '__main__':
     # fine-tuning the model
     if train:
         print("####################\nfine-tuning the model\n####################")
-        model,tokenizer = fine_tuning(model_choice=model_choice, vocab_adapt=vocab_adapt, lora=lora, sanity_check=sanity_check,
+        model,tokenizer = fine_tuning(model_choice=model_choice, vocab_adapt=vocab_adapt, lora=lora, freeze_trans=freeze_trans,
         mono_train=mono_train, mono_corpus_train=mono_corpus_train, mono_corpus_eval=mono_corpus_eval, tokenizer_path=tokenizer_path,
         src_lang=src_lang, trg_lang=trg_lang, dir=dir, mini_batch_size=mini_batch_size, grad_accum=grad_accum, learning_rate=learning_rate,
         num_epochs=num_epochs, masking=masking, save_dir=save_dir, train_num_line=train_num_line, eval_num_line=eval_num_line)
@@ -79,4 +78,4 @@ if __name__ == '__main__':
     if infer:
         print("####################\nstarting inference\n####################")
         inference(src_lang=src_lang, trg_lang=trg_lang, dir=dir, save_dir=save_dir, right_padding=right_padding,
-        baseline=baseline, model_choice=model_choice, wmt22=wmt22, wmt19=wmt19)
+        baseline=baseline, vocab_adapt=vocab_adapt, model_choice=model_choice, testset=testset)

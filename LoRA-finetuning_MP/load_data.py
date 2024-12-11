@@ -47,12 +47,55 @@ def load_wmt19(dir):
 
     return wmt19
 
+def split_yue_paragraph_into_sentence(en_yue):
+
+    # to instantiate two empty lists for sentence level corpus
+    length_of_dataset = len(en_yue['en'])
+    en = []
+    yue = []
+
+    # to split the parallel corpus into sentence level
+    for i in range(length_of_dataset):
+        sentence_level_en = en_yue['en'][i].split('.')
+        sentence_level_yue = en_yue['yue'][i].split('。')
+
+        sentence_level_en = [item.strip() + '.' for item in sentence_level_en]
+        sentence_level_yue = [item.strip() + '。' for item in sentence_level_yue]
+
+        # to kick out the unmatched entry
+        if len(sentence_level_en) == len(sentence_level_yue):
+            en.extend(sentence_level_en)
+            yue.extend(sentence_level_yue)
+
+    return en, yue
+
 def load_yue_trans():
 
     yue_tran = load_dataset('BillBao/Yue-Benchmark', 'Yue-TRANS', split='test')
     en_yue = yue_tran[:200]
 
-    return en_yue
+    en, yue = split_yue_paragraph_into_sentence(en_yue)
+
+    return {
+            'en': en,
+            'yue': yue,
+    }
+
+def load_flores(source_lang, trg_lang, split):
+
+    # load the language iso code mapping for flores
+    with open('config.json', 'r') as f:
+        config = json.load(f)
+
+    lang_iso_code_mapping = config['flores']
+
+    flores200_src = load_dataset('facebook/flores', lang_iso_code_mapping[source_lang], trust_remote_code=True)[split]['sentence']
+    flores200_trg = load_dataset('facebook/flores', lang_iso_code_mapping[trg_lang], trust_remote_code=True)[split]['sentence']
+
+    return {
+            source_lang: flores200_src,
+            trg_lang: flores200_trg,
+    }
 
 def chat_temp_llama_Instruct_finetune(dataset, key, src_lang, trg_lang, instruction):
 
@@ -75,7 +118,7 @@ def chat_temp_llama_Instruct_generation(dataset, key, src_lang, trg_lang, instru
     system = "<|start_header_id|>system<|end_header_id|>\nYou are a helpful AI assistant for translations\n<|eot_id|>\n"
     prefix = system + user + instruction
 
-    if src_lang != 'yue' and trg_lang != 'yue':
+    if key != None:
         inputs = [prefix + sample[key][src_lang] + end_id + '\n' + assistant for sample in dataset], [sample[key][trg_lang] for sample in dataset]
     else:
         inputs = [prefix + dataset[src_lang][i] + end_id + '\n' + assistant for i in range(len(dataset[src_lang]))], [dataset[trg_lang][i] for i in range(len(dataset[trg_lang]))]

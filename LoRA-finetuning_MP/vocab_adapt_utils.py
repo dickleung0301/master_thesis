@@ -89,10 +89,15 @@ def vocab_adaptation(model, original_tokenizer, tokenizer_path, lora=False):
     original_embeddings = model.model.embed_tokens.weight.detach().cpu().numpy().astype(np.float64)
     mean = np.mean(original_embeddings, axis=0)
     var = np.cov(original_embeddings, rowvar=False)
+    #std = np.std(original_embeddings, axis=0)
     dist = torch.distributions.multivariate_normal.MultivariateNormal(torch.tensor(mean), torch.tensor(var))
 
     # replace the word embeddings & lm head
     new_embedding = torch.nn.Embedding(vocab_size, model_dim)
+    #original_lm_head_weights = model.lm_head.weight.detach().cpu().numpy().astype(np.float64)
+    #lm_head_mean = np.mean(original_lm_head_weights, axis=0)
+    #lm_head_var = np.cov(original_lm_head_weights, rowvar=False)
+    #lm_head_dist = torch.distributions.multivariate_normal.MultivariateNormal(torch.tensor(lm_head_mean), torch.tensor(lm_head_var))
     new_lm_head = torch.nn.Linear(model_dim, vocab_size, bias=False)
     torch.nn.init.xavier_uniform_(new_lm_head.weight)
 
@@ -100,11 +105,15 @@ def vocab_adaptation(model, original_tokenizer, tokenizer_path, lora=False):
     for i in range(vocab_size):
         with torch.no_grad():
             new_embedding.weight[i].copy_(dist.sample())
+            #new_lm_head.weight[i].copy_(lm_head_dist.sample())
+            #sampled_embedding = torch.normal(mean=torch.tensor(mean, dtype=torch.float32), std=torch.tensor(std, dtype=torch.float32))
+            #new_embedding.weight[i].copy_(sampled_embedding)
 
     # to assign the overlapped word embedding
     for token, (idx1, idx2) in overlap_map.items():
         with torch.no_grad():
             new_embedding.weight[idx2].copy_(model.model.embed_tokens.weight[idx1])
+            #new_lm_head.weight[idx2].copy_(model.lm_head.weight[idx1])
 
     # copy the first vocab_size word embedd from the original model
     if lora:
@@ -118,7 +127,7 @@ def vocab_adaptation(model, original_tokenizer, tokenizer_path, lora=False):
     # freeze the whole transformer body while only keeping word embeddings & lm head unfreezed
     for param in model.parameters():
         param.requires_grad = False
-    
+
     # Unfreeze the lm_head
     for param in model.lm_head.parameters():
         param.requires_grad = True
@@ -171,13 +180,30 @@ def switch_llama_embedding(save_dir):
                                                 token=token)
     original_tokenizer = AutoTokenizer.from_pretrained('meta-llama/Meta-Llama-3.1-8B-Instruct', cache_dir="/export/data2/yleung/model_cache", token=token)
 
-    # get the device of word embeddings & lm_head
-    embedding_device = custom_model.get_input_embeddings().weight.device
+#    custom_model = AutoModelForCausalLM.from_pretrained(save_dir,
+#                                                        device_map='cpu',
+#                                                        torch_dtype=torch.float16,
+#                                                        token=token)
+#    custom_tokenizer = AutoTokenizer.from_pretrained(save_dir, token=token)
+#
+#    llama = AutoModelForCausalLM.from_pretrained('meta-llama/Meta-Llama-3.1-8B-Instruct',
+#                                                cache_dir='/export/data2/yleung/model_cache',
+#                                                device_map='auto',
+#                                                torch_dtype=torch.float16,
+#                                                low_cpu_mem_usage=True,
+#                                                token=token)
+#    original_tokenizer = AutoTokenizer.from_pretrained('meta-llama/Meta-Llama-3.1-8B-Instruct', cache_dir="/export/data2/yleung/model_cache", token=token)
 
-    # keep tracking the word embedds & lm_heads
+    # get the device of word embeddings
+    embedding_device = custom_model.get_input_embeddings().weight.device
+#    embedding_device = llama.get_input_embeddings().weight.device
+
+    # keep tracking the word embedds
     original_embed_tokens = copy.deepcopy(llama.model.embed_tokens).to(embedding_device)
+#    original_embed_tokens = copy.deepcopy(custom_model.model.embed_tokens).to(embedding_device)
 
     # add the llama word embedding to the custom model
     custom_model.original_embed_tokens = original_embed_tokens
+#    llama.original_embed_tokens = original_embed_tokens
 
     return original_tokenizer, custom_tokenizer, custom_model
