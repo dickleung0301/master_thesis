@@ -20,6 +20,7 @@ if __name__ == '__main__':
     parser.add_argument('--freeze_trans', dest='freeze_trans', action='store_true', help='To freeze the transformers body')
     parser.add_argument('--mono_train', dest='mono_train', action='store_true', help='To carry out monolingual corpus training')
     parser.add_argument('--inference', dest='inference', action='store_true', help='To enable inference')
+    parser.add_argument('--switch_embed', dest='switch_embed', action='store_true', help='To switch embedding for inference')
     parser.add_argument('--mask', dest='masking', action='store_true', help='To enable masking')
     parser.add_argument('--right', dest='right_padding', action='store_true', help='To enable right padding in inference')
     parser.add_argument('--baseline', dest='baseline', action='store_true', help='To run inference with baseline')
@@ -46,6 +47,7 @@ if __name__ == '__main__':
     freeze_trans = args.freeze_trans
     mono_train = args.mono_train
     infer = args.inference
+    switch_embed = args.switch_embed
     masking = args.masking
     right_padding = args.right_padding
     baseline = args.baseline
@@ -55,6 +57,7 @@ if __name__ == '__main__':
         dir = src_lang + '-' + trg_lang
     else:
         dir = None
+        
     mini_batch_size = args.mini_batch_size
     grad_accum = args.grad_accum
     learning_rate = args.learning_rate
@@ -78,4 +81,4 @@ if __name__ == '__main__':
     if infer:
         print("####################\nstarting inference\n####################")
         inference(src_lang=src_lang, trg_lang=trg_lang, dir=dir, save_dir=save_dir, right_padding=right_padding,
-        baseline=baseline, vocab_adapt=vocab_adapt, model_choice=model_choice, testset=testset)
+        baseline=baseline, switch_embed=switch_embed, model_choice=model_choice, testset=testset)

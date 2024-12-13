@@ -131,8 +131,8 @@ def fine_tuning(model_choice, vocab_adapt, lora, freeze_trans, mono_train, mono_
     early_stop_threshold = 0.0
     early_stop = False
     num_bad_steps = 0
-    eff_batch_to_eval = 20
-    #eff_batch_to_eval = 100
+    #eff_batch_to_eval = 20
+    eff_batch_to_eval = 100
     print("####################\nearly stopping config.\n####################")
     print(f"Patience: {patience}")
     print(f"Threshold: {early_stop_threshold}")
@@ -210,7 +210,7 @@ def fine_tuning(model_choice, vocab_adapt, lora, freeze_trans, mono_train, mono_
 
     return model, tokenizer
 
-def inference(src_lang, trg_lang, dir, save_dir, right_padding, baseline, vocab_adapt, model_choice, testset):
+def inference(src_lang, trg_lang, dir, save_dir, right_padding, baseline, switch_embed, model_choice, testset):
 
     # load the access token from .env
     load_dotenv()
@@ -229,14 +229,17 @@ def inference(src_lang, trg_lang, dir, save_dir, right_padding, baseline, vocab_
     # load the model from the save directory 
     if baseline:
         model, tokenizer = model_factory(model_choice=model_choice, device_map='auto')
-    elif vocab_adapt:
-        tokenizer, custom_tokenizer, model = switch_llama_embedding(save_dir)
     else:
         model = AutoModelForCausalLM.from_pretrained(save_dir, device_map='auto', token=token)
         tokenizer = AutoTokenizer.from_pretrained(save_dir, token=token)
 
     # get the device of the embedding layer
     first_device = next(model.parameters()).device
+
+    # load the encoding tokenizer & word embeddings for source language
+    if switch_embed:
+        encoding_embedd, encoding_tokenizer = load_embed_tokens_and_tokenizer(model_choice=model_choice)
+        encoding_embedd = encoding_embedd.to(first_device)
 
     # load the mapping of testset
     with open('config.json', 'r') as f:
@@ -247,28 +250,33 @@ def inference(src_lang, trg_lang, dir, save_dir, right_padding, baseline, vocab_
     # get the case of testset
     idx_testset = testset_mapping[testset]
 
+    # pick the encoding tokenizer depends on switch_embed
+    if switch_embed:
+        encoder = encoding_tokenizer
+    else:
+        encoder = tokenizer
+
     # load dataset depends on idx_testset
-    match idx_testset:
-        case 1:
-            test_dataset = load_wmt22(dir=dir)
-            # preprocess the dataset
-            processed_test_dataset = generation_preprocess(model_choice=model_choice, dataset=test_dataset, key=dir, src_lang=src_lang, trg_lang=trg_lang,
-                                                        trans_dir=dir, tokenizer=tokenizer, right_padding=right_padding)
-        case 2:
-            test_dataset = load_wmt19(dir=dir)
-            # preprocess the dataset
-            processed_test_dataset = generation_preprocess(model_choice=model_choice, dataset=test_dataset, key='translation', src_lang=src_lang, trg_lang=trg_lang,
-                                                        trans_dir=dir, tokenizer=tokenizer, right_padding=right_padding)
-        case 3:
-            test_dataset = load_flores(source_lang=src_lang, trg_lang=trg_lang, split='devtest')
-            # preprocess the dataset
-            processed_test_dataset = generation_preprocess(model_choice=model_choice, dataset=test_dataset, src_lang=src_lang, trg_lang=trg_lang,
-                                                        trans_dir=dir, tokenizer=tokenizer, right_padding=right_padding) 
-        case 4:
-            test_dataset = load_yue_trans()
-            # preprocess the dataset
-            processed_test_dataset = generation_preprocess(model_choice=model_choice, dataset=test_dataset, src_lang=src_lang, trg_lang=trg_lang,
-                                                        trans_dir=dir, tokenizer=tokenizer, right_padding=right_padding)   
+    if idx_testset == 1:
+        test_dataset = load_wmt22(dir=dir)
+        # preprocess the dataset
+        processed_test_dataset = generation_preprocess(model_choice=model_choice, dataset=test_dataset, key=dir, src_lang=src_lang, trg_lang=trg_lang,
+                                                    trans_dir=dir, tokenizer=encoder, right_padding=right_padding)
+    elif idx_testset == 2:
+        test_dataset = load_wmt19(dir=dir)
+        # preprocess the dataset
+        processed_test_dataset = generation_preprocess(model_choice=model_choice, dataset=test_dataset, key='translation', src_lang=src_lang, trg_lang=trg_lang,
+                                                    trans_dir=dir, tokenizer=encoder, right_padding=right_padding)
+    elif idx_testset == 3:
+        test_dataset = load_flores(source_lang=src_lang, trg_lang=trg_lang, split='devtest')
+        # preprocess the dataset
+        processed_test_dataset = generation_preprocess(model_choice=model_choice, dataset=test_dataset, src_lang=src_lang, trg_lang=trg_lang,
+                                                    trans_dir=dir, tokenizer=encoder, right_padding=right_padding) 
+    elif idx_testset == 4:
+        test_dataset = load_yue_trans()
+        # preprocess the dataset
+        processed_test_dataset = generation_preprocess(model_choice=model_choice, dataset=test_dataset, src_lang=src_lang, trg_lang=trg_lang,
+                                                    trans_dir=dir, tokenizer=encoder, right_padding=right_padding)   
 
     # pack the dataset into dataloader
     test_dataloader = DataLoader(processed_test_dataset, batch_size=8, shuffle=False)
@@ -282,14 +290,16 @@ def inference(src_lang, trg_lang, dir, save_dir, right_padding, baseline, vocab_
     for batch in tqdm(test_dataloader):
         # move the inputs to gpu 0 as model parallelism
         input_ids = batch['input_ids'].to(first_device)
-        if vocab_adapt:
-            inputs_embeds = model.original_embed_tokens(input_ids)
         attention_mask = batch['attention_mask'].to(first_device)
         labels = batch['labels']
 
+        # encode the input_ids with encoding_embedd
+        if switch_embed:
+            inputs_embeds = encoding_embedd(input_ids)
+
         # inference
         with torch.no_grad():
-            if vocab_adapt:
+            if switch_embed:
                 outputs = model.generate(inputs_embeds=inputs_embeds, attention_mask=attention_mask, max_new_tokens=256,
                                         do_sample=False, temperature=1.0, top_p=1.0, repetition_penalty=1.5)
             else:
@@ -304,10 +314,7 @@ def inference(src_lang, trg_lang, dir, save_dir, right_padding, baseline, vocab_
         # decode the outputs
         decoded_inputs = tokenizer.batch_decode(input_ids, skip_special_tokens=True)
         decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True)
-        if not vocab_adapt:
-            decoded_predictions = tokenizer.batch_decode(outputs, skip_special_tokens=True)
-        else:
-            decoded_predictions = custom_tokenizer.batch_decode(outputs, skip_special_tokens=True)
+        decoded_predictions = tokenizer.batch_decode(outputs, skip_special_tokens=True)
 
         # append the inputs, labels & predictions
         inputs_list.extend(decoded_inputs)

@@ -179,6 +179,9 @@ def check_numbers_of_trainable_parameters(model_path, token):
                                                 token=token)
 
     # check the # of trainable parameters
-    trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    trainable_params = 0
+    for name, param in model.named_parameters():
+        if param.requires_grad:
+            trainable_params += param.numel()
 
     return trainable_params

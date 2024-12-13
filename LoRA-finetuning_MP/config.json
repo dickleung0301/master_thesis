@@ -6,11 +6,27 @@
         "is-en": "Translate Icelandic to English: ",
         "ru-en": "Translate Russian to English: ",
         "zh-en": "Translate Chinese to English: ",
+        "yue-en": "Trnaslate Cantonese in Traditional Chinese to English: ",
+	    "zht-en": "Translate Traditional Chinese to English: ",
         "en-cs": "Translate English to Czech: ",
         "en-de": "Translate English to German: ",
+        "en-gu": "Translate English to Gujarati: ",
         "en-is": "Translate English to Icelandic: ",
         "en-ru": "Translate English to Russian: ",
         "en-zh": "Translate English to Chinese: ",
-        "en-yue": "Trnaslate English to Cantonese: "
+        "en-yue": "Trnaslate English to Cantonese in Traditional Chinese: ",
+	    "en-zht": "Translate English to Traditional Chinese: "
+    },
+
+    "flores": {
+        "en": "eng_Latn",
+        "zht": "zho_Hant"
+    },
+
+    "testset_mapping": {
+        "wmt22": 1,
+        "wmt19": 2,
+        "flores": 3,
+        "yue": 4
     }
 }

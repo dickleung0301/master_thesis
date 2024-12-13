@@ -119,12 +119,12 @@ def chat_temp_llama_Instruct_generation(dataset, key, src_lang, trg_lang, instru
     prefix = system + user + instruction
 
     if key != None:
-        inputs = [prefix + sample[key][src_lang] + end_id + '\n' + assistant for sample in dataset], [sample[key][trg_lang] for sample in dataset]
+        inputs, targets = [prefix + sample[key][src_lang] + end_id + '\n' + assistant for sample in dataset], [sample[key][trg_lang] for sample in dataset]
     else:
-        inputs = [prefix + dataset[src_lang][i] + end_id + '\n' + assistant for i in range(len(dataset[src_lang]))], [dataset[trg_lang][i] for i in range(len(dataset[trg_lang]))]
+        inputs, targets = [prefix + dataset[src_lang][i] + end_id + '\n' + assistant for i in range(len(dataset[src_lang]))], [dataset[trg_lang][i] for i in range(len(dataset[trg_lang]))]
 
     # return a list of input sequence with promt format
-    return inputs
+    return inputs, targets
 
 def chat_temp_tower_Instruct_finetune(dataset, key, src_lang, trg_lang, instruction):
 
